@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
+
+[ext_resource type="Texture2D" uid="uid://cktdmpo57tkf1" path="res://sprites/Krook Tree.png" id="1_spa2o"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+visible = false
+position = Vector2(359, 39)
+texture = ExtResource("1_spa2o")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(33.4091, 481.086, 327.137, 481.086, 213.818, 411.741, 298.948, 339.014, 231.295, 255.011, 358.144, 143.383, 282.034, 27.8084, 59.3416, 27.2446, -38.2867, 159.008, 108.39, 269.105, 183.373, 338.453, 98.8065, 404.978)
+uv = PackedVector2Array(33.4091, 481.086, 327.137, 481.086, 213.818, 411.741, 298.948, 339.014, 231.295, 255.011, 358.144, 143.383, 282.034, 27.8084, 59.3416, 27.2446, -31.4265, 159.169, 108.39, 269.105, 183.373, 338.453, 98.8065, 404.978)
+polygons = [PackedInt32Array(11, 2, 1, 0), PackedInt32Array(11, 2, 3, 10), PackedInt32Array(10, 3, 4, 9), PackedInt32Array(4, 5, 8, 9), PackedInt32Array(5, 6, 7, 8)]
+bones = ["B0", PackedFloat32Array(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "B0/B1", PackedFloat32Array(0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1), "B0/B1/B2", PackedFloat32Array(0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0), "B0/B1/B2/B3", PackedFloat32Array(0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0), "B0/B1/B2/B3/B4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="Skeleton2D" type="Skeleton2D" parent="."]
+visible = false
+
+[node name="B0" type="Bone2D" parent="Skeleton2D"]
+position = Vector2(513, 520)
+rest = Transform2D(1, 0, 0, 1, 513, 520)
+
+[node name="B1" type="Bone2D" parent="Skeleton2D/B0"]
+position = Vector2(0, -39)
+rest = Transform2D(1, 0, 0, 1, 0, -39)
+
+[node name="B2" type="Bone2D" parent="Skeleton2D/B0/B1"]
+position = Vector2(76, -101)
+rotation = 0.698102
+rest = Transform2D(0.766064, 0.642765, -0.642765, 0.766064, 76, -101)
+
+[node name="B3" type="Bone2D" parent="Skeleton2D/B0/B1/B2"]
+position = Vector2(-146.28, -56.1006)
+rotation = -0.536909
+scale = Vector2(1, 1)
+rest = Transform2D(0.859294, -0.511482, 0.511482, 0.859294, -146.28, -56.1006)
+
+[node name="B4" type="Bone2D" parent="Skeleton2D/B0/B1/B2/B3"]
+position = Vector2(-27.4449, -168.783)
+rest = Transform2D(1, 0, 0, 1, -27.4449, -168.783)

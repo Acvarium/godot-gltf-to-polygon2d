@@ -1,0 +1,14 @@
+[remap]
+
+importer="gltf_to_polygon2d"
+type="Resource"
+uid="uid://dpf571cktajkf"
+valid=false
+
+[deps]
+
+source_file="res://models/tree.gltf"
+
+[params]
+
+scale=1.0
