@@ -19,6 +19,12 @@ func _get_resource_type() -> String:
 func _get_import_order() -> int:
 	return 0
 
+func _get_preset_count() -> int:
+	return 1
+
+func _get_preset_name(preset_index: int) -> String:
+	return "Default"
+
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 	return []  # Немає додаткових опцій
 
@@ -36,61 +42,35 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 		push_error("Failed to generate scene from GLTF: " + source_file)
 		return ERR_CANT_CREATE
 
-	var objects_data = {}
-	_process_node(scene_root, objects_data)
+	var polygon2d = Polygon2D.new()
+	
+	var vertices = []
 
-	# Збереження списку у файл
-	var json_path = save_path + ".json"
-	var file = FileAccess.open(json_path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(objects_data, "\t"))
-		file.close()
-		print("Mesh data saved to: ", json_path)
-	else:
-		push_error("Failed to save object data to JSON")
+	_process_node(scene_root, vertices)
+	
+	polygon2d.polygon = vertices
 
-	# Зберігаємо імпортовану сцену
+	var node2d = Node2D.new()
+	node2d.add_child(polygon2d, true)
+	polygon2d.owner = node2d
+
 	var packed_scene = PackedScene.new()
-	packed_scene.pack(scene_root)
-	return ResourceSaver.save(packed_scene, save_path + "." + _get_save_extension())
+	packed_scene.pack(node2d)
+	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
-func _process_node(node: Node, objects_data: Dictionary, parent_path: String = ""):
-	var node_path = parent_path + "/" + node.name if parent_path != "" else node.name
-
-	print("Processing node:", node.name, "Type:", node.get_class())  # Діагностика
-
+func _process_node(node: Node, vertices: Array, parent_path: String = ""):
 	if node is MeshInstance3D or node.get_class() == "ImporterMeshInstance3D":
-		print(" -> Found MeshInstance3D or ImporterMeshInstance3D:", node.name)
-
 		var mesh = node.mesh
 		if mesh is ImporterMesh:
-			print(" --> ImporterMesh detected! Trying to convert to standard Mesh.")
-			mesh = mesh.get_mesh()  # Конвертуємо в стандартний Mesh
-
-		if mesh is ArrayMesh:  # Переконуємось, що тепер це ArrayMesh
-			print(" --> Converted to ArrayMesh!")
-			var vertices_data = []  # Масив для збереження вершин і UV
-
+			mesh = mesh.get_mesh()
+		
+		if mesh is ArrayMesh:
 			for i in range(mesh.get_surface_count()):
 				var array = mesh.surface_get_arrays(i)
-				
 				if array.size() > Mesh.ARRAY_VERTEX:
 					var verts = array[Mesh.ARRAY_VERTEX]
-					var uvs = array[Mesh.ARRAY_TEX_UV] if array.size() > Mesh.ARRAY_TEX_UV else []
-
-					for v in range(verts.size()):
-						var vertex_data = {
-							"position": verts[v],
-							"uv": uvs[v] if uvs.size() > v else Vector2()  # Додаємо UV або пусте значення
-						}
-						vertices_data.append(vertex_data)
-			
-			objects_data[node_path] = vertices_data
-		else:
-			print(" --> Mesh is NULL or incompatible!")
-			objects_data[node_path] = "Mesh is NULL or incompatible"
-	else:
-		objects_data[node_path] = "Not a mesh"
+					for v in verts:
+						vertices.append(Vector2(v.x, -v.y))  # Проєкція на XY (вид з Z+)
 
 	for child in node.get_children():
-		_process_node(child, objects_data, node_path)
+		_process_node(child, vertices, parent_path)

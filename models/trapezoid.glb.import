@@ -1,0 +1,14 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://b3wni57epwvha"
+path="res://.godot/imported/trapezoid.glb-a137cd8444b6675e71803463355006ac.scn"
+
+[deps]
+
+source_file="res://models/trapezoid.glb"
+dest_files=["res://.godot/imported/trapezoid.glb-a137cd8444b6675e71803463355006ac.scn"]
+
+[params]
+
