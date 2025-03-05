@@ -1,9 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
-
-[ext_resource type="PackedScene" uid="uid://b3wni57epwvha" path="res://models/trapezoid.glb" id="2_0xm2m"]
+[gd_scene format=3 uid="uid://br72rhy767mrr"]
 
 [node name="Main" type="Node2D"]
-
-[node name="Node2D" parent="." instance=ExtResource("2_0xm2m")]
-
-[editable path="Node2D"]
