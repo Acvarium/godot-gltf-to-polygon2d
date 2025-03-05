@@ -1,3 +1,9 @@
-[gd_scene format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
+
+[ext_resource type="PackedScene" uid="uid://dtr11stmlldse" path="res://models/3.glb" id="1_ig7tw"]
 
 [node name="Main" type="Node2D"]
+
+[node name="3" parent="." instance=ExtResource("1_ig7tw")]
+
+[editable path="3"]

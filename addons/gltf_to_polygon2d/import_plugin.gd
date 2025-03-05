@@ -28,6 +28,7 @@ func _get_preset_name(preset_index: int) -> String:
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 	return []  # Немає додаткових опцій
 
+
 func _import(source_file: String, save_path: String, options: Dictionary, r_platform_variants: Array[String], r_gen_files: Array[String]) -> int:
 	var importer := GLTFDocument.new()
 	var state := GLTFState.new()
@@ -42,47 +43,47 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 		push_error("Failed to generate scene from GLTF: " + source_file)
 		return ERR_CANT_CREATE
 
-	var polygon2d = Polygon2D.new()
-	polygon2d.name = "Polygon2D"
-	var vertices = []
-
-	_process_node(scene_root, vertices)
-	
-	polygon2d.polygon = vertices
-
 	var node2d = Node2D.new()
 	node2d.name = source_file.get_file().split('.')[0]
-	node2d.add_child(polygon2d, true)
-	polygon2d.owner = node2d
-	
+
+	var meshes = []
+	_process_node(scene_root, meshes)
+	for i in range(meshes.size()):
+		var polygon2d = Polygon2D.new()
+		polygon2d.name = "Polygon2D_" + str(i)
+		polygon2d.polygon = meshes[i]
+		node2d.add_child(polygon2d, true)
+		polygon2d.owner = node2d
 
 	var packed_scene = PackedScene.new()
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
-func _process_node(node: Node, vertices: Array, parent_path: String = ""):
+
+func _process_node(node: Node, meshes: Array, parent_path: String = ""):
 	if node is MeshInstance3D or node.get_class() == "ImporterMeshInstance3D":
 		var mesh = node.mesh
 		if mesh is ImporterMesh:
 			mesh = mesh.get_mesh()
 		if mesh is ArrayMesh:
+			var vertices = []
+			var world_offset = node.transform.origin
+			
 			var edges = _extract_boundary_edges(mesh)
 			var ordered_vertices = _order_boundary_vertices(edges)
 			if ordered_vertices.size() > 0:
-
-			
 				var vert_array = []
 				for i in range(mesh.get_surface_count()):
 					var array = mesh.surface_get_arrays(i)
 					if array.size() > Mesh.ARRAY_VERTEX:
 						var verts = array[Mesh.ARRAY_VERTEX]
 						for v in verts:
-							vert_array.append(Vector2(v.x, -v.y))  # Проєкція на XY (вид з Z+)
-							
+							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) )  # Проєкція на XY (вид з Z+)
 				for i in range(ordered_vertices.size()):
 					vertices.append(vert_array[int(ordered_vertices[i])])
+			meshes.append(vertices)
 	for child in node.get_children():
-		_process_node(child, vertices, parent_path)
+		_process_node(child, meshes, parent_path)
 
 
 func _extract_boundary_edges(mesh: Mesh) -> Dictionary:
@@ -97,13 +98,10 @@ func _extract_boundary_edges(mesh: Mesh) -> Dictionary:
 					var edge_list = [[indices[j], indices[j+1]], [indices[j+1], indices[j+2]], [indices[j+2], indices[j]]]
 					for edge in edge_list:
 						var key = Vector2(min(edge[0], edge[1]), max(edge[0], edge[1]))
-						print("key " + str(key))
 						if key in edges:
 							edges[key] += 1
-							print("added key")
 						else:
 							edges[key] = 1
-							print("new key")
 	# Заміна dictionary comprehension на цикл
 	var filtered_edges = {}
 	for key in edges.keys():
@@ -118,7 +116,6 @@ func _order_boundary_vertices(edges: Dictionary) -> Array:
 		return []
 
 	var ordered = [edge_keys[0].x, edge_keys[0].y]
-	print("edges " + str(edges))
 	while true:
 		var found = false
 		for i in range(edge_keys.size()):
@@ -132,6 +129,4 @@ func _order_boundary_vertices(edges: Dictionary) -> Array:
 				break
 		if not found:
 			break
-	for o in ordered:
-		print("o " + str(o))
 	return ordered

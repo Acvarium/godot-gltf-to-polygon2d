@@ -1,0 +1,14 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://c735ddto2aice"
+path="res://.godot/imported/4.glb-a212517de0a02c25cd84c04a0e9eab9e.scn"
+
+[deps]
+
+source_file="res://models/4.glb"
+dest_files=["res://.godot/imported/4.glb-a212517de0a02c25cd84c04a0e9eab9e.scn"]
+
+[params]
+
