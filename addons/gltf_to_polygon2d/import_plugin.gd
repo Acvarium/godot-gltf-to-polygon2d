@@ -26,10 +26,19 @@ func _get_preset_name(preset_index: int) -> String:
 	return "Default"
 
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
-	return []  # Немає додаткових опцій
+	return [        {
+			"name": "scale",
+			"default_value": 50.0,
+			"property_hint": PROPERTY_HINT_RANGE,
+			"hint_string": "1.0,500,0.1"
+		}]  
 
+func _get_option_visibility(preset_name: String, option_name: StringName, options: Dictionary) -> bool:
+	return true  
+	
 
 func _import(source_file: String, save_path: String, options: Dictionary, r_platform_variants: Array[String], r_gen_files: Array[String]) -> int:
+	var scale = options.get("scale", 1.0)
 	var importer := GLTFDocument.new()
 	var state := GLTFState.new()
 
@@ -46,12 +55,12 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 	var node2d = Node2D.new()
 	node2d.name = source_file.get_file().split('.')[0]
 
-	var meshes = []
-	_process_node(scene_root, meshes)
-	for i in range(meshes.size()):
+	var meshes = {}
+	_process_node(scene_root, meshes, scale)
+	for key in meshes.keys():
 		var polygon2d = Polygon2D.new()
-		polygon2d.name = "Polygon2D_" + str(i)
-		polygon2d.polygon = meshes[i]
+		polygon2d.name = key
+		polygon2d.polygon = meshes[key]
 		node2d.add_child(polygon2d, true)
 		polygon2d.owner = node2d
 
@@ -60,30 +69,37 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
 
-func _process_node(node: Node, meshes: Array, parent_path: String = ""):
+func _process_node(node: Node, meshes: Dictionary, scale : float = 1.0, parent_path: String = ""):
 	if node is MeshInstance3D or node.get_class() == "ImporterMeshInstance3D":
 		var mesh = node.mesh
 		if mesh is ImporterMesh:
 			mesh = mesh.get_mesh()
 		if mesh is ArrayMesh:
-			var vertices = []
 			var world_offset = node.transform.origin
-			
 			var edges = _extract_boundary_edges(mesh)
-			var ordered_vertices = _order_boundary_vertices(edges)
-			if ordered_vertices.size() > 0:
-				var vert_array = []
-				for i in range(mesh.get_surface_count()):
-					var array = mesh.surface_get_arrays(i)
-					if array.size() > Mesh.ARRAY_VERTEX:
-						var verts = array[Mesh.ARRAY_VERTEX]
-						for v in verts:
-							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) )  # Проєкція на XY (вид з Z+)
-				for i in range(ordered_vertices.size()):
-					vertices.append(vert_array[int(ordered_vertices[i])])
-			meshes.append(vertices)
+			var edge_loops = _get_edge_loops(edges)
+			for edge_loop in edge_loops:
+				var vertices = []
+				if edge_loop.size() > 0:
+					var vert_array = []
+					for i in range(mesh.get_surface_count()):
+						var array = mesh.surface_get_arrays(i)
+						if array.size() > Mesh.ARRAY_VERTEX:
+							var verts = array[Mesh.ARRAY_VERTEX]
+							for v in verts:
+								vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y)  * scale)  
+					for i in range(edge_loop.size()):
+						vertices.append(vert_array[int(edge_loop[i])])
+				var mesh_key_name = node.name
+				var n = 0
+				while mesh_key_name in meshes.keys():
+					n += 1
+					mesh_key_name = node.name + str(n)
+				
+				meshes[mesh_key_name] = vertices
+				
 	for child in node.get_children():
-		_process_node(child, meshes, parent_path)
+		_process_node(child, meshes, scale, parent_path)
 
 
 func _extract_boundary_edges(mesh: Mesh) -> Dictionary:
@@ -110,23 +126,41 @@ func _extract_boundary_edges(mesh: Mesh) -> Dictionary:
 	return filtered_edges
 
 
-func _order_boundary_vertices(edges: Dictionary) -> Array:
+func _get_edge_loops(edges: Dictionary) -> Array:
+	var edge_loops = []
 	var edge_keys = edges.keys()
 	if edge_keys.size() == 0:
 		return []
-
-	var ordered = [edge_keys[0].x, edge_keys[0].y]
-	while true:
-		var found = false
-		for i in range(edge_keys.size()):
-			if edge_keys[i].x == ordered[-1] and not edge_keys[i].y in ordered:
-				ordered.append(edge_keys[i].y)
-				found = true
+	var n = 0
+	while edge_keys.size() > 0 and n < 100000:
+		var ordered = [edge_keys[0].x, edge_keys[0].y]
+		var keys_to_remove : Array = [0]
+		while true:
+			var found = false
+			for i in range(edge_keys.size()):
+				if edge_keys[i].x == ordered[-1] and not edge_keys[i].y in ordered:
+					ordered.append(edge_keys[i].y)
+					if not i in keys_to_remove:
+						keys_to_remove.append(i)
+					found = true
+					break
+				elif edge_keys[i].y == ordered[-1] and not edge_keys[i].x in ordered:
+					ordered.append(edge_keys[i].x)
+					if not i in keys_to_remove:
+						keys_to_remove.append(i)
+					found = true
+					break
+			if not found:
+				var lest_edge = Vector2(ordered[0], ordered[-1])
+				if (ordered[0] > ordered[-1]):
+					lest_edge = Vector2(ordered[-1], ordered[0])
+				keys_to_remove.append(edge_keys.find(lest_edge))
+				edge_loops.append(ordered)
+				var new_edge_keys = []
+				for i in range(edge_keys.size()):
+					if not i in keys_to_remove:
+						new_edge_keys.append(edge_keys[i])
+				edge_keys = new_edge_keys
 				break
-			elif edge_keys[i].y == ordered[-1] and not edge_keys[i].x in ordered:
-				ordered.append(edge_keys[i].x)
-				found = true
-				break
-		if not found:
-			break
-	return ordered
+		n += 1
+	return edge_loops

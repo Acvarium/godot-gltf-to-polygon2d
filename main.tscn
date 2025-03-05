@@ -1,9 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
 
-[ext_resource type="PackedScene" uid="uid://dtr11stmlldse" path="res://models/3.glb" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://dpf571cktajkf" path="res://models/tree.gltf" id="1_lquwl"]
+[ext_resource type="PackedScene" uid="uid://c735ddto2aice" path="res://models/4.glb" id="2_0xm2m"]
 
 [node name="Main" type="Node2D"]
 
-[node name="3" parent="." instance=ExtResource("1_ig7tw")]
+[node name="4" parent="." instance=ExtResource("2_0xm2m")]
 
-[editable path="3"]
+[node name="tree" parent="." instance=ExtResource("1_lquwl")]
+
+[editable path="4"]
+[editable path="tree"]
