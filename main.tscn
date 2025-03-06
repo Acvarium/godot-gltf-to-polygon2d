@@ -1,14 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
 
-[ext_resource type="PackedScene" uid="uid://cjkmjgc30dynh" path="res://models/snowman.glb" id="1_ig7tw"]
-[ext_resource type="PackedScene" uid="uid://c735ddto2aice" path="res://models/4.glb" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://uibxp5bu2buk" path="res://models/bones1.glb" id="1_ig7tw"]
 
 [node name="Main" type="Node2D"]
 
-[node name="snowman" parent="." instance=ExtResource("1_ig7tw")]
+[node name="bones1" parent="." instance=ExtResource("1_ig7tw")]
 
-[node name="4" parent="." instance=ExtResource("2_0xm2m")]
-position = Vector2(165, -97)
+[node name="B0" parent="bones1/Skeleton2D" index="0"]
+rest = Transform2D(1, 0, 0, 1, 0, 0)
 
-[editable path="snowman"]
-[editable path="4"]
+[node name="B1" parent="bones1/Skeleton2D/B0" index="0"]
+rest = Transform2D(1, 0, 0, 1, 0, -50)
+
+[node name="t" parent="bones1/Skeleton2D/B0/B1" index="0"]
+rest = Transform2D(1, 0, 0, 1, 0, -50)
+
+[node name="BB" parent="bones1" index="1"]
+skeleton = NodePath("../Skeleton2D")
+bones = ["B0", PackedFloat32Array(1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0), "B0/B1", PackedFloat32Array(0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1), "B0/B1/t", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[editable path="bones1"]
