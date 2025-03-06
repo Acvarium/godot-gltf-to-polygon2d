@@ -1,0 +1,15 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://cjkmjgc30dynh"
+path="res://.godot/imported/snowman.glb-5222bd64580ed5ec8a65cc79ee9abe39.scn"
+
+[deps]
+
+source_file="res://models/snowman.glb"
+dest_files=["res://.godot/imported/snowman.glb-5222bd64580ed5ec8a65cc79ee9abe39.scn"]
+
+[params]
+
+scale=50.0

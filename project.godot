@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="gltf_to_polygon2d"
+run/main_scene="uid://br72rhy767mrr"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 

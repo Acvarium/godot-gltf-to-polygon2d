@@ -1,13 +1,14 @@
 [gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
 
-[ext_resource type="PackedScene" uid="uid://dpf571cktajkf" path="res://models/tree.gltf" id="1_lquwl"]
+[ext_resource type="PackedScene" uid="uid://cjkmjgc30dynh" path="res://models/snowman.glb" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://c735ddto2aice" path="res://models/4.glb" id="2_0xm2m"]
 
 [node name="Main" type="Node2D"]
 
+[node name="snowman" parent="." instance=ExtResource("1_ig7tw")]
+
 [node name="4" parent="." instance=ExtResource("2_0xm2m")]
+position = Vector2(165, -97)
 
-[node name="tree" parent="." instance=ExtResource("1_lquwl")]
-
+[editable path="snowman"]
 [editable path="4"]
-[editable path="tree"]

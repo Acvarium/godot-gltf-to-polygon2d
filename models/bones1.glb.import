@@ -1,0 +1,15 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://uibxp5bu2buk"
+path="res://.godot/imported/bones1.glb-33abecce5d0d262bbae8315f6061d969.scn"
+
+[deps]
+
+source_file="res://models/bones1.glb"
+dest_files=["res://.godot/imported/bones1.glb-33abecce5d0d262bbae8315f6061d969.scn"]
+
+[params]
+
+scale=50.0
