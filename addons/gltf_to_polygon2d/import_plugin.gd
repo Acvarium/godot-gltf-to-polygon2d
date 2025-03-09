@@ -107,25 +107,10 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			var bone_count = bones.keys().size()
 			polygon2d.set_skeleton(polygon2d.get_path_to(skeleton))
 			for i in range(bones.keys().size()):
-				pass
-				#print(meshes[key]["weights_array"])
-				
-				#polygon2d.add_bone(polygon2d.get_path_to(bones[i]), )
-			
-			#if bone_weights.size() > 0 and key in bone_weights and bone_weights[key].size() > 0:
-				#var weights_data = bone_weights[key]
-				#
-				#for vertex_weights in weights_data:  # Перебираємо всі записи у списку
-					#var bones = vertex_weights["bones"]
-					#var weights = vertex_weights["weights"]
-					#
-					#for i in range(len(bones)):  # Для кожної кістки
-						#var bone_index = bones[i]
-						#var weight_values = PackedFloat32Array([weights[i]])  # Робимо правильний формат
-						##polygon2d.set_bone_weights(bone_index, weight_values)  # Передаємо індекс + ваги
-
-
-
+				if i in meshes[key]["weights_array"].keys():
+					var bone_weights = meshes[key]["weights_array"][i]
+					
+					polygon2d.add_bone(polygon2d.get_path_to(bones[i]), bone_weights)
 	var packed_scene = PackedScene.new()
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
@@ -158,7 +143,6 @@ func _convert_skeleton(skeleton3d: Skeleton3D, scale: float) -> Dictionary:
 
 
 func _find_skeleton_for_mesh(node: Node, mesh_name: String) -> Skeleton3D:
-	print(mesh_name)
 	if node is MeshInstance3D or node.get_class() == "ImporterMeshInstance3D":
 		if node.name == mesh_name:
 			for child in node.get_children():
@@ -171,16 +155,30 @@ func _find_skeleton_for_mesh(node: Node, mesh_name: String) -> Skeleton3D:
 	return null
 
 
-func _process_node(node: Node, meshes: Dictionary, scale : float = 1.0, parent_path: String = ""):
+func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_path: String = ""):
 	if node is MeshInstance3D or node.get_class() == "ImporterMeshInstance3D":
 		var mesh = node.mesh
+		#skeleton3d.get_bone_count()
 		if mesh is ImporterMesh:
 			mesh = mesh.get_mesh()
 			if mesh is ArrayMesh:
 				var world_offset = node.transform.origin
 				var vert_array = []
 				var index_array = []
-				var weights_array = []
+				var weights_array = {}  # Тепер словник, де ключ - індекс кістки, значення - PackedFloat32Array
+				
+
+				var skeleton3d : = node.get_parent()
+				if skeleton3d and skeleton3d is Skeleton3D:
+					var fill_vert_count = 0
+					for i in range(mesh.get_surface_count()):
+						var array = mesh.surface_get_arrays(i)
+						fill_vert_count = len(array[Mesh.ARRAY_VERTEX])
+					for b in range(skeleton3d.get_bone_count()):
+						weights_array[b] = PackedFloat32Array()
+						weights_array[b].resize(fill_vert_count)
+						weights_array[b].fill(0.0)
+				var weigth_rec_check = []
 				
 				for i in range(mesh.get_surface_count()):
 					var array = mesh.surface_get_arrays(i)
@@ -188,40 +186,38 @@ func _process_node(node: Node, meshes: Dictionary, scale : float = 1.0, parent_p
 					if array.size() > Mesh.ARRAY_VERTEX:
 						verts = array[Mesh.ARRAY_VERTEX]
 						for v in verts:
-							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y)  * scale)  
-
+							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) * scale)
+					
 					if array.size() > Mesh.ARRAY_INDEX:
 						var indices = array[Mesh.ARRAY_INDEX]
 						var triangles = []
 						for j in range(0, indices.size(), 3):  # Групуємо по 3, бо трикутники
-							triangles.append([indices[j], indices[j+1], indices[j+2]])
+							triangles.append([indices[j], indices[j + 1], indices[j + 2]])
 						index_array.append_array(triangles)
-				
-				# Обробка ваг кісток
-					if array[Mesh.ARRAY_BONES] and array.size() > Mesh.ARRAY_BONES and array.size() > Mesh.ARRAY_WEIGHTS:
+
+					# Обробка ваг кісток
+					if skeleton3d and array[Mesh.ARRAY_BONES] and array.size() > Mesh.ARRAY_BONES and array.size() > Mesh.ARRAY_WEIGHTS:
 						var bone_indices = array[Mesh.ARRAY_BONES]
 						var bone_weights_data = array[Mesh.ARRAY_WEIGHTS]
-						#print(bone_weights_data)
-						for j in range(len(verts)):
-							var weights: Array = []
-							var bones: Array = []
-							for k in range(4):  # До 4 впливових кісток на вершину
+						print(bone_indices)
+						var vertex_count = verts.size()
+						for j in range(vertex_count):
+							for k in range(4):  # До 4 кісток на вершину
 								var bone_idx = bone_indices[j * 4 + k]
-								var weight = bone_weights_data[j * 4 + k]
-								#if weight > 0.0:  # Додаємо лише значущі впливи
-								bones.append(bone_idx)
-								weights.append(weight)
-							weights_array.append({ "bones": bones, "weights": weights })
-				print(weights_array)
+								if not (bone_idx * 10000000 + j) in weigth_rec_check:
+									var weight = bone_weights_data[j * 4 + k]
+									weigth_rec_check.append(bone_idx * 10000000 + j)
+									weights_array[bone_idx][j] = weight
+
 				var mesh_name = node.name
 				meshes[mesh_name] = {}
 				meshes[mesh_name]["vert_array"] = vert_array
 				meshes[mesh_name]["polygons_array"] = index_array
-				meshes[mesh_name]["weights_array"] = weights_array
-				if node.get_parent() and node.get_parent() is Skeleton3D and \
-						node.get_parent().get_parent():
+				meshes[mesh_name]["weights_array"] = weights_array  # Тепер словник {bone_idx: PackedFloat32Array}
+				
+				if node.get_parent() and node.get_parent() is Skeleton3D and node.get_parent().get_parent():
 					meshes[mesh_name]["skeleton_name"] = node.get_parent().get_parent().name
-
+			
 
 	for child in node.get_children():
 		_process_node(child, meshes, scale, parent_path)
