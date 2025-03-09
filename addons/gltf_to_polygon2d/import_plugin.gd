@@ -76,7 +76,6 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			var bone2d = Bone2D.new()
 			bone2d.name = bone_info["name"]
 			bone2d.position = bone_info["position"]
-			print(bone_info["name"] + " : " + str(bone_info["position"]))
 			bones[bone_id] = bone2d
 		
 		for bone_id in bone_data.keys():
@@ -101,6 +100,18 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 		polygon2d.name = key
 		polygon2d.polygon = meshes[key]["vert_array"]
 		polygon2d.polygons = meshes[key]["polygons_array"]
+		if "texture_path" in meshes[key].keys():
+			var texture: Texture2D = load(meshes[key]["texture_path"]) as Texture2D
+			polygon2d.texture = texture
+			var texture_width = texture.get_width()
+			var texture_height = texture.get_height()
+			if "uv_array" in meshes[key].keys():
+				var scaled_uv = []
+				for i in range(meshes[key]["uv_array"].size()):
+					scaled_uv.append(meshes[key]["uv_array"][i] * Vector2(texture_width, texture_height))
+				polygon2d.uv = scaled_uv
+				print(meshes[key]["uv_array"])
+			
 		node2d.add_child(polygon2d, true)
 		polygon2d.owner = node2d
 		if "skeleton_name" in meshes[key].keys() and meshes[key]["skeleton_name"] in skeletons_data.keys():
@@ -141,7 +152,6 @@ func _convert_skeleton(skeleton3d: Skeleton3D, scale: float) -> Dictionary:
 			local_position = transform.origin - parent_global_position
 		else:
 			local_position = transform.origin
-		print("___" + bone_name + " : " + str(transform.origin))
 		bonesData[i] = {
 			"name": bone_name,
 			"position": Vector2(local_position.x, -local_position.y) * scale,
@@ -169,10 +179,19 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 		if mesh is ImporterMesh:
 			mesh = mesh.get_mesh()
 			if mesh is ArrayMesh:
+				
+				var texture_path = ""
+				var material: Material = mesh.surface_get_material(0)
+				if material is BaseMaterial3D:
+					var albedo_texture = material.albedo_texture
+					if albedo_texture:
+						texture_path = albedo_texture.resource_path
+						
 				var world_offset = node.transform.origin
 				var vert_array = []
 				var index_array = []
 				var weights_dict = {}  # Тепер словник, де ключ - індекс кістки, значення - PackedFloat32Array
+				var uv_array = []
 				
 				var skeleton3d : = node.get_parent()
 				if skeleton3d and skeleton3d is Skeleton3D:
@@ -193,7 +212,8 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 						verts = array[Mesh.ARRAY_VERTEX]
 						for v in verts:
 							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) * scale)
-					
+					if array.size() > Mesh.ARRAY_TEX_UV:
+						uv_array = array[Mesh.ARRAY_TEX_UV]
 					if array.size() > Mesh.ARRAY_INDEX:
 						var indices = array[Mesh.ARRAY_INDEX]
 						var triangles = []
@@ -219,10 +239,13 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 				meshes[mesh_name]["vert_array"] = vert_array
 				meshes[mesh_name]["polygons_array"] = index_array
 				meshes[mesh_name]["weights_dict"] = weights_dict  # Тепер словник {bone_idx: PackedFloat32Array}
-				
+				if texture_path != "":
+					meshes[mesh_name]["texture_path"] = texture_path
 				if node.get_parent() and node.get_parent() is Skeleton3D and node.get_parent().get_parent():
 					meshes[mesh_name]["skeleton_name"] = node.get_parent().get_parent().name
-			
+				if len(uv_array) > 0:
+					meshes[mesh_name]["uv_array"] = uv_array
+
 
 	for child in node.get_children():
 		_process_node(child, meshes, scale, parent_path)

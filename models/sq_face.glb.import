@@ -1,0 +1,15 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://dh0ojdumebdgm"
+path="res://.godot/imported/sq_face.glb-317e84ad53006a6d5be2608d2bb25782.scn"
+
+[deps]
+
+source_file="res://models/sq_face.glb"
+dest_files=["res://.godot/imported/sq_face.glb-317e84ad53006a6d5be2608d2bb25782.scn"]
+
+[params]
+
+scale=50.0
