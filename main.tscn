@@ -1,9 +1,30 @@
 [gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
 
-[ext_resource type="PackedScene" uid="uid://uibxp5bu2buk" path="res://models/bones1.glb" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://byfmkfv7p4gq6" path="res://models/char01.glb" id="1_ig7tw"]
 
 [node name="Main" type="Node2D"]
 
-[node name="bones1" parent="." instance=ExtResource("1_ig7tw")]
+[node name="char01" parent="." instance=ExtResource("1_ig7tw")]
 
-[editable path="bones1"]
+[node name="spine" parent="char01/Armature/torso" index="0"]
+rotation = 0.0460275
+
+[node name="head" parent="char01/Armature/torso/spine" index="0"]
+rotation = 0.296573
+scale = Vector2(1, 1)
+
+[node name="leg02_r" parent="char01/Armature/torso/leg01_r" index="0"]
+rotation = 1.28539
+
+[node name="foot_r" parent="char01/Armature/torso/leg01_r/leg02_r" index="0"]
+rotation = -0.166471
+scale = Vector2(1, 1)
+
+[node name="leg01_l" parent="char01/Armature/torso" index="2"]
+position = Vector2(11.0288, 0.046219)
+rotation = -0.450065
+
+[node name="leg02_l" parent="char01/Armature/torso/leg01_l" index="0"]
+rotation = 1.06929
+
+[editable path="char01"]

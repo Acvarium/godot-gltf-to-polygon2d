@@ -1,0 +1,15 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://cpq8wg8726lp1"
+path="res://.godot/imported/bone_pos_test.glb-329670aa4bfddeca4c067206f75773b1.scn"
+
+[deps]
+
+source_file="res://models/bone_pos_test.glb"
+dest_files=["res://.godot/imported/bone_pos_test.glb-329670aa4bfddeca4c067206f75773b1.scn"]
+
+[params]
+
+scale=50.0

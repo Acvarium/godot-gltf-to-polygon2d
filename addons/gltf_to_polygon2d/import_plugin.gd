@@ -76,6 +76,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			var bone2d = Bone2D.new()
 			bone2d.name = bone_info["name"]
 			bone2d.position = bone_info["position"]
+			print(bone_info["name"] + " : " + str(bone_info["position"]))
 			bones[bone_id] = bone2d
 		
 		for bone_id in bone_data.keys():
@@ -131,11 +132,19 @@ func _convert_skeleton(skeleton3d: Skeleton3D, scale: float) -> Dictionary:
 	var bonesData = {}
 	for i in range(skeleton3d.get_bone_count()):
 		var bone_name = skeleton3d.get_bone_name(i)
-		var transform = skeleton3d.get_bone_rest(i)
+		var transform = skeleton3d.get_bone_global_rest(i)
 		var parent_idx = skeleton3d.get_bone_parent(i)
+		
+		var local_position: Vector3
+		if parent_idx != -1:
+			var parent_global_position = skeleton3d.get_bone_global_rest(parent_idx).origin
+			local_position = transform.origin - parent_global_position
+		else:
+			local_position = transform.origin
+		print("___" + bone_name + " : " + str(transform.origin))
 		bonesData[i] = {
 			"name": bone_name,
-			"position": Vector2(transform.origin.x, -transform.origin.y) * scale,
+			"position": Vector2(local_position.x, -local_position.y) * scale,
 			"parent": parent_idx if parent_idx != -1 else null
 		}
 	return bonesData
