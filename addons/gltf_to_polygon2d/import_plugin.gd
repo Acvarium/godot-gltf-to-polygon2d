@@ -26,12 +26,18 @@ func _get_preset_name(preset_index: int) -> String:
 	return "Default"
 
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
-	return [        {
+	return [        
+		{
 			"name": "scale",
 			"default_value": 50.0,
 			"property_hint": PROPERTY_HINT_RANGE,
 			"hint_string": "1.0,500,0.1"
-		}]  
+		},
+		{
+			"name": "surfaces_as_nodes",
+			"default_value": false
+		}
+		]  
 
 func _get_option_visibility(preset_name: String, option_name: StringName, options: Dictionary) -> bool:
 	return true  
@@ -39,6 +45,7 @@ func _get_option_visibility(preset_name: String, option_name: StringName, option
 
 func _import(source_file: String, save_path: String, options: Dictionary, r_platform_variants: Array[String], r_gen_files: Array[String]) -> int:
 	var scale = options.get("scale", 1.0)
+	var surfaces_as_nodes :bool = options.get("surfaces_as_nodes", false)
 	var importer := GLTFDocument.new()
 	var state := GLTFState.new()
 
@@ -110,7 +117,6 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 				for i in range(meshes[key]["uv_array"].size()):
 					scaled_uv.append(meshes[key]["uv_array"][i] * Vector2(texture_width, texture_height))
 				polygon2d.uv = scaled_uv
-				print(meshes[key]["uv_array"])
 			
 		node2d.add_child(polygon2d, true)
 		polygon2d.owner = node2d
@@ -126,6 +132,9 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 					polygon2d.add_bone(polygon2d.get_path_to(bones[i]), bone_weights)
 	var packed_scene = PackedScene.new()
 	packed_scene.pack(node2d)
+	var animation_data = {}
+	_process_animation(scene_root, animation_data)
+	
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
 
@@ -137,6 +146,25 @@ func _process_bone_nodes(node: Node, skeletonsData: Dictionary, parent_path: Str
 		skeletonsData[key_name] = node
 	for child in node.get_children():
 		_process_bone_nodes(child, skeletonsData, parent_path)
+
+
+func _process_animation(node: Node, animation_data: Dictionary, parent_path: String = ""):
+	if node is AnimationPlayer:
+		var animation_player : AnimationPlayer = node
+		var anim_lib : AnimationLibrary = animation_player.get_animation_library("")
+		
+		for anim_name in anim_lib.get_animation_list():
+			var anim : Animation = anim_lib.get_animation(anim_name)
+			for i in range(anim.get_track_count()):
+				
+				print(anim.track_get_type(i))
+				print(anim.track_get_path(i))
+				for k in range(anim.track_get_key_count(i)):
+					print(anim.track_get_key_value(i, k))
+		
+	for child in node.get_children():
+		_process_animation(child, animation_data, parent_path)
+
 
 
 func _convert_skeleton(skeleton3d: Skeleton3D, scale: float) -> Dictionary:
@@ -204,7 +232,6 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 						weights_dict[b].resize(fill_vert_count)
 						weights_dict[b].fill(0.0)
 				var weigth_rec_check = []
-				
 				for i in range(mesh.get_surface_count()):
 					var array = mesh.surface_get_arrays(i)
 					var verts = []
@@ -245,7 +272,6 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 					meshes[mesh_name]["skeleton_name"] = node.get_parent().get_parent().name
 				if len(uv_array) > 0:
 					meshes[mesh_name]["uv_array"] = uv_array
-
 
 	for child in node.get_children():
 		_process_node(child, meshes, scale, parent_path)

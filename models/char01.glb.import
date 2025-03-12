@@ -13,3 +13,4 @@ dest_files=["res://.godot/imported/char01.glb-873496640a77510b844bb934433dd168.s
 [params]
 
 scale=50.0
+surfaces_as_nodes=false

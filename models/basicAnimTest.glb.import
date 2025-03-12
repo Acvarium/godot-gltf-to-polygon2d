@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://cd60wctr1dovi"
+path="res://.godot/imported/basicAnimTest.glb-613c539d5f6aa54f5512364bef9dd760.scn"
+
+[deps]
+
+source_file="res://models/basicAnimTest.glb"
+dest_files=["res://.godot/imported/basicAnimTest.glb-613c539d5f6aa54f5512364bef9dd760.scn"]
+
+[params]
+
+scale=50.0
+surfaces_as_nodes=false

@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://cejukstt0a0hy"
+path="res://.godot/imported/char01_anim.glb-e7882ea345999f406a6a6b967e1e3340.scn"
+
+[deps]
+
+source_file="res://models/char01_anim.glb"
+dest_files=["res://.godot/imported/char01_anim.glb-e7882ea345999f406a6a6b967e1e3340.scn"]
+
+[params]
+
+scale=50.0
+surfaces_as_nodes=false
