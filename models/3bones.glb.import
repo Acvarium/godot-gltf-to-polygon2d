@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://cepqxsc377atg"
+path="res://.godot/imported/3bones.glb-6eff344e2faf21a940f5f74820a3e82b.scn"
+
+[deps]
+
+source_file="res://models/3bones.glb"
+dest_files=["res://.godot/imported/3bones.glb-6eff344e2faf21a940f5f74820a3e82b.scn"]
+
+[params]
+
+scale=50.0
+surfaces_as_nodes=false
