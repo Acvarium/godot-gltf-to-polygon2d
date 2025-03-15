@@ -198,9 +198,20 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 						var rot_track_id = animation.add_track(Animation.TYPE_VALUE)
 						if not track_node_path.is_empty():
 							animation.track_set_path(rot_track_id, NodePath(str(track_node_path) + ":rotation"))
+						var prev_angle = 0.0
 						for i in range(track_data["keyframes"].size()):
-							var rot2d = rot3d_to_2d(track_data["keyframes"][i], scale, rot_correction)
+							var rot2d = rot3d_to_2d(track_data["keyframes"][i], rot_correction)
+							var angle_shift = 0.0
+							if i > 0:
+								var angle_diff = rot2d - prev_angle
+								angle_shift = PI * 2 * (1.0 + int(abs(angle_diff) / (PI * 2)))
+								if angle_diff > PI:
+									rot2d -= angle_shift
+								elif angle_diff < -PI:
+									rot2d += angle_shift
+							print(str(rad_to_deg(rot2d)) + " " + str(angle_shift))
 							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot2d)
+							prev_angle = rot2d
 						
 				global_library.add_animation(anim_name, animation)
 	packed_scene.pack(node2d)
@@ -235,9 +246,8 @@ func pos3d_to_2d(pos3d : Vector3, scale : float = 1.0, coordinate_rotation = 0.0
 	return Vector2(pos3d.x * scale, -pos3d.y * scale).rotated(coordinate_rotation)
 
 
-func rot3d_to_2d(rot3d : Quaternion, scale : float = 1.0, coordinate_rotation = 0.0) -> float:
+func rot3d_to_2d(rot3d : Quaternion, coordinate_rotation = 0.0) -> float:
 	return -rot3d.get_euler().z + coordinate_rotation
-	#return rot3d.normalized().get_angle() + coordinate_rotation
 
 
 func _process_bone_nodes(node: Node, skeletons_3d: Dictionary, parent_path: String = ""):
@@ -261,19 +271,18 @@ func _process_animation(node: Node, animation_data: Dictionary, parent_path: Str
 			var anim : Animation = anim_lib.get_animation(anim_name)
 			animation_data[anim_player_name][anim_name]["length"] = anim.length
 			animation_data[anim_player_name][anim_name]["tracks"] = []
-			print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
+			#print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
 			for i in range(anim.get_track_count()):
 				var current_track = {}
 				current_track["type"] = anim.track_get_type(i)
 				current_track["path"] = str(anim.track_get_path(i)).replace('.', '_')
-				print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
+				#print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
 				var keyframes = []
 				var key_times = []
 				for k in range(anim.track_get_key_count(i)):
 					if current_track["type"] == 2:
 						var q_rot : Quaternion = anim.track_get_key_value(i, k)
-						
-						print(q_rot.normalized().get_angle())
+						#print(q_rot.normalized().get_angle())
 					keyframes.append(anim.track_get_key_value(i, k))
 					key_times.append(anim.track_get_key_time(i, k))
 				current_track["keyframes"] = keyframes

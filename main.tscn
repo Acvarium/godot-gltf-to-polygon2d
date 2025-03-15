@@ -1,26 +1,112 @@
-[gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=9 format=3 uid="uid://br72rhy767mrr"]
 
 [ext_resource type="PackedScene" uid="uid://cepqxsc377atg" path="res://models/3bones.glb" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://cd60wctr1dovi" path="res://models/basicAnimTest.glb" id="2_0xm2m"]
+[ext_resource type="Texture2D" uid="uid://knm0tnqx2n08" path="res://models/sq_face_sq.png" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://cipujd4wko17m" path="res://models/char01_anim.glb" id="4_1bvp3"]
+
+[sub_resource type="Animation" id="Animation_1bvp3"]
+resource_name = "a"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 18.8496]
+}
+
+[sub_resource type="Animation" id="Animation_lquwl"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(619, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_7mycd"]
+resource_name = "b"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.49915),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(619, 0), Vector2(623, -161)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_272bh"]
+_data = {
+&"RESET": SubResource("Animation_lquwl"),
+&"a": SubResource("Animation_1bvp3"),
+&"b": SubResource("Animation_7mycd")
+}
 
 [node name="Main" type="Node2D"]
 
-[node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
+[node name="basicAnimTest" parent="." instance=ExtResource("2_0xm2m")]
 visible = false
+
+[node name="Bone1" parent="basicAnimTest/Armature/Bone" index="0"]
+position = Vector2(17.6777, -42.6777)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(619, 0)
+texture = ExtResource("2_h2yge")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite2D"]
+libraries = {
+&"": SubResource("AnimationLibrary_272bh")
+}
+
+[node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
 
 [node name="a" parent="3bones/Armature" index="0"]
 position = Vector2(-4.92224e-12, -150)
 
 [node name="b" parent="3bones/Armature/a" index="0"]
-position = Vector2(5.72205e-06, -50)
+position = Vector2(150, -50)
 
 [node name="c" parent="3bones/Armature/a/b" index="0"]
 position = Vector2(1.90735e-06, -50)
 
-[node name="basicAnimTest" parent="." instance=ExtResource("2_0xm2m")]
+[node name="char01_anim" parent="." instance=ExtResource("4_1bvp3")]
 
-[node name="Bone1" parent="basicAnimTest/Armature/Bone" index="0"]
-position = Vector2(17.6777, -42.6777)
+[node name="torso" parent="char01_anim/Armature" index="0"]
+position = Vector2(0.971174, 25.2593)
 
-[editable path="3bones"]
+[node name="spine" parent="char01_anim/Armature/torso" index="0"]
+rotation = 1.5708
+
 [editable path="basicAnimTest"]
+[editable path="3bones"]
+[editable path="char01_anim"]
