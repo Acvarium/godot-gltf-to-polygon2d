@@ -65,35 +65,33 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 #-------------------------------------------------------------------------------
 #-------     SKELETON AND BONES
 #-------------------------------------------------------------------------------
-	var skeletonsData = {}
-	_process_bone_nodes(scene_root, skeletonsData)
-	var skeletons_data = {}
-	 
-	for skel_name in skeletonsData.keys():
+	var skeletons_3d = {}
+	_process_bone_nodes(scene_root, skeletons_3d)
+	var skeletons_2d_data = {}
+	for skel_name in skeletons_3d.keys():
+		
 		var skeleton2d = Skeleton2D.new()
 		skeleton2d.name = skel_name
 		node2d.add_child(skeleton2d, true)
 		skeleton2d.owner = node2d
-		skeletons_data[skel_name] = {}
-		skeletons_data[skel_name]["skeleton"] = skeleton2d
+		skeletons_2d_data[skel_name] = {}
+		skeletons_2d_data[skel_name]["skeleton"] = skeleton2d
 		nodes[skel_name] = skeleton2d
-		var bone_data = _convert_skeleton(skeletonsData[skel_name], scale)
+		var bones_data = _convert_skeleton(skeletons_3d[skel_name], scale)
 		var bones = {}
-		for bone_id in bone_data.keys():
-			var bone_info = bone_data[bone_id]
+		for bone_id in bones_data.keys():
+			var bone_info = bones_data[bone_id]
 			var bone2d = Bone2D.new()
 			bone2d.name = bone_info["name"]
-			var initial_rotation = _get_bone_initial_rotation(skeletonsData[skel_name], bone_id)
-			bone2d.rotation = initial_rotation
-			bone2d.position = bone_info["position"]
-			#print(bone_info["name"] + " : " + str(bone_info["position"]))
-			#bone2d.position = _convert_to_local_positions(bone_data, bone_id)
-			#print(bone_info["name"] + " : " + str(bone2d.position))
+			var initial_rotation = _get_bone_initial_rotation(skeletons_3d[skel_name], bone_id)
+			bones_data[bone_id]["initial_rotation"] = initial_rotation
 			bones[bone_id] = bone2d
+			bone2d.set_meta("bone_id", bone_id)
+			bone2d.set_meta("skeleton_name", str(skel_name))
 			nodes[bone2d.name] = bone2d
 			
-		for bone_id in bone_data.keys():
-			var parent_id = bone_data[bone_id]["parent"]
+		for bone_id in bones_data.keys():
+			var parent_id = bones_data[bone_id]["parent"]
 			if parent_id == null:
 				skeleton2d.add_child(bones[bone_id])  # Коренева кістка
 			else:
@@ -101,13 +99,13 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 		for bone : Bone2D in bones.values():
 			bone.owner = node2d
 		
-		for bone_id in bone_data.keys():
+		for bone_id in bones_data.keys():
 			var bone = bones[bone_id]
-			bone.global_position = bone_data[bone_id]["global_position"]
-			#bone.position = bone.position
+			bone.global_position = bones_data[bone_id]["global_position"]
 			bone.rest = bone.transform
 			
-		skeletons_data[skel_name]["bones"] = bones
+		skeletons_2d_data[skel_name]["bones"] = bones
+		skeletons_2d_data[skel_name]["bones_data"] = bones_data
 		
 #-------------------------------------------------------------------------------
 #-------     POLYGON
@@ -133,10 +131,10 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			
 		node2d.add_child(polygon2d, true)
 		polygon2d.owner = node2d
-		if "skeleton_name" in meshes[key].keys() and meshes[key]["skeleton_name"] in skeletons_data.keys():
+		if "skeleton_name" in meshes[key].keys() and meshes[key]["skeleton_name"] in skeletons_2d_data.keys():
 			var skeleton_name = meshes[key]["skeleton_name"]
-			var skeleton = skeletons_data[skeleton_name]["skeleton"]
-			var bones = skeletons_data[skeleton_name]["bones"]
+			var skeleton = skeletons_2d_data[skeleton_name]["skeleton"]
+			var bones = skeletons_2d_data[skeleton_name]["bones"]
 			var bone_count = bones.keys().size()
 			polygon2d.set_skeleton(polygon2d.get_path_to(skeleton))
 			for i in range(bones.keys().size()):
@@ -168,39 +166,52 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 					var split_node_name = str(track_data["path"]).split(":")
 					var track_node : Node2D
 					
+					var coordinate_rotation = 0.0
+					var rot_correction = 0.0
+					
 					if split_node_name.size() > 1 and split_node_name[1] in nodes.keys():
 						track_node_path = node2d.get_path_to(nodes[split_node_name[1]])
 						track_node = nodes[split_node_name[1]]
-					
+						
+						if track_node is Bone2D:
+							var bone_id : int = track_node.get_meta("bone_id")
+							var skel_name : String = track_node.get_meta("skeleton_name")
+							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
+							var root_bone_rot = get_root_bone_rot(skeletons_2d_data[skel_name]["bones_data"], bone_id)
+							if bone_parent != null:
+								coordinate_rotation = root_bone_rot
+								var parent_rot = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["initial_rotation"]
+								rot_correction = -skeletons_2d_data[skel_name]["bones_data"][bone_id]["initial_rotation"] + \
+									skeletons_2d_data[skel_name]["bones_data"][bone_parent]["initial_rotation"]
+							else:
+								rot_correction = -skeletons_2d_data[skel_name]["bones_data"][bone_id]["initial_rotation"]
+							
+							var full_rot = 0.0
 					if track_data["type"] == Animation.TrackType.TYPE_POSITION_3D:
 						var pos_track_id = animation.add_track(Animation.TYPE_VALUE)
 						if not track_node_path.is_empty():
 							animation.track_set_path(pos_track_id, NodePath(str(track_node_path) + ":position"))
-							
 							for i in range(track_data["keyframes"].size()):
-								var pos2d = pos3d_to_2d(track_data["keyframes"][i], scale)
-								#if track_node.get_class() == "Bone2D":
-									#var bone : Bone2D = track_node
-									#print(bone.rest.get_origin())
-									#print(bone.get_rotation())
-									#print(bone.transform.get_rotation())
-									#pos2d += bone.rest.get_origin()
-								
+								var pos2d = pos3d_to_2d(track_data["keyframes"][i], scale, coordinate_rotation)
 								animation.track_insert_key(pos_track_id, track_data["key_times"][i], pos2d)
 					elif track_data["type"] == Animation.TrackType.TYPE_ROTATION_3D:
 						var rot_track_id = animation.add_track(Animation.TYPE_VALUE)
 						if not track_node_path.is_empty():
 							animation.track_set_path(rot_track_id, NodePath(str(track_node_path) + ":rotation"))
 						for i in range(track_data["keyframes"].size()):
-							var rot2d = rot3d_to_2d(track_data["keyframes"][i], scale)
-							#if track_node.get_class() == "Bone2D":
-								#var bone : Bone2D = track_node
-								#rot2d -= bone.rest.get_rotation()
+							var rot2d = rot3d_to_2d(track_data["keyframes"][i], scale, rot_correction)
 							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot2d)
 						
 				global_library.add_animation(anim_name, animation)
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
+
+
+func get_root_bone_rot(bones_data : Dictionary, bone_id : int) -> float:
+	var parent = bones_data[bone_id]["parent"]
+	if parent == null:
+		return bones_data[bone_id]["initial_rotation"]
+	return get_root_bone_rot(bones_data, parent)
 
 
 func _get_bone_initial_rotation(skeleton: Skeleton3D, bone_id: int) -> float:
@@ -220,22 +231,23 @@ func _apply_parent_rotation(position: Vector2, parent_rotation: float) -> Vector
 	)
 
 
-func pos3d_to_2d(pos3d : Vector3, scale : float = 1.0) -> Vector2:
-	return Vector2(pos3d.x * scale, -pos3d.y * scale)
+func pos3d_to_2d(pos3d : Vector3, scale : float = 1.0, coordinate_rotation = 0.0) -> Vector2:
+	return Vector2(pos3d.x * scale, -pos3d.y * scale).rotated(coordinate_rotation)
 
 
-func rot3d_to_2d(rot3d : Quaternion, scale : float = 1.0) -> float:
-	return -rot3d.get_euler().z
+func rot3d_to_2d(rot3d : Quaternion, scale : float = 1.0, coordinate_rotation = 0.0) -> float:
+	return -rot3d.get_euler().z + coordinate_rotation
+	#return rot3d.normalized().get_angle() + coordinate_rotation
 
 
-func _process_bone_nodes(node: Node, skeletonsData: Dictionary, parent_path: String = ""):
+func _process_bone_nodes(node: Node, skeletons_3d: Dictionary, parent_path: String = ""):
 	if node is Skeleton3D:
 		var key_name = node.name
 		if node.get_parent():
 			key_name = node.get_parent().name
-		skeletonsData[key_name] = node
+		skeletons_3d[key_name] = node
 	for child in node.get_children():
-		_process_bone_nodes(child, skeletonsData, parent_path)
+		_process_bone_nodes(child, skeletons_3d, parent_path)
 
 
 func _process_animation(node: Node, animation_data: Dictionary, parent_path: String = ""):
@@ -249,13 +261,19 @@ func _process_animation(node: Node, animation_data: Dictionary, parent_path: Str
 			var anim : Animation = anim_lib.get_animation(anim_name)
 			animation_data[anim_player_name][anim_name]["length"] = anim.length
 			animation_data[anim_player_name][anim_name]["tracks"] = []
+			print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
 			for i in range(anim.get_track_count()):
 				var current_track = {}
 				current_track["type"] = anim.track_get_type(i)
 				current_track["path"] = str(anim.track_get_path(i)).replace('.', '_')
+				print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
 				var keyframes = []
 				var key_times = []
 				for k in range(anim.track_get_key_count(i)):
+					if current_track["type"] == 2:
+						var q_rot : Quaternion = anim.track_get_key_value(i, k)
+						
+						print(q_rot.normalized().get_angle())
 					keyframes.append(anim.track_get_key_value(i, k))
 					key_times.append(anim.track_get_key_time(i, k))
 				current_track["keyframes"] = keyframes
@@ -271,8 +289,6 @@ func _convert_skeleton(skeleton3d: Skeleton3D, scale: float) -> Dictionary:
 		var bone_name = skeleton3d.get_bone_name(i)
 		var global_transform = skeleton3d.get_bone_global_pose(i)
 		var local_transform = skeleton3d.get_bone_rest(i)
-		
-		
 		var parent_idx = skeleton3d.get_bone_parent(i)
 		
 		var global_position: Vector3 = global_transform.origin

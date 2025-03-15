@@ -1,27 +1,26 @@
 [gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
 
 [ext_resource type="PackedScene" uid="uid://cepqxsc377atg" path="res://models/3bones.glb" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://boa7amdbdwhl5" path="res://testSkeleton.gd" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://cd60wctr1dovi" path="res://models/basicAnimTest.glb" id="2_0xm2m"]
 
 [node name="Main" type="Node2D"]
 
 [node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
+visible = false
 
-[node name="Armature" parent="3bones" index="0"]
-script = ExtResource("2_h2yge")
+[node name="a" parent="3bones/Armature" index="0"]
+position = Vector2(-4.92224e-12, -150)
+
+[node name="b" parent="3bones/Armature/a" index="0"]
+position = Vector2(5.72205e-06, -50)
 
 [node name="c" parent="3bones/Armature/a/b" index="0"]
-position = Vector2(-35.3553, -35.3553)
-auto_calculate_length_and_angle = false
-length = 50.0
-bone_angle = 180.0
+position = Vector2(1.90735e-06, -50)
 
-[node name="c_003" parent="3bones/Armature/a/b/c/c_001/c_002" index="0"]
-auto_calculate_length_and_angle = false
-length = 50.0
-bone_angle = -60.0
+[node name="basicAnimTest" parent="." instance=ExtResource("2_0xm2m")]
 
-[node name="3b" parent="3bones" index="1"]
-modulate = Color(1, 1, 1, 0.486275)
+[node name="Bone1" parent="basicAnimTest/Armature/Bone" index="0"]
+position = Vector2(17.6777, -42.6777)
 
 [editable path="3bones"]
+[editable path="basicAnimTest"]

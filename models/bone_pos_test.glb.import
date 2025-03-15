@@ -13,3 +13,4 @@ dest_files=["res://.godot/imported/bone_pos_test.glb-329670aa4bfddeca4c067206f75
 [params]
 
 scale=50.0
+surfaces_as_nodes=false
