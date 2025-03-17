@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://dm64ymqbp23gh"
+path="res://.godot/imported/4AnimTest.glb-a185910e37726bbb0faf00fc7a9840f5.scn"
+
+[deps]
+
+source_file="res://models/2/4AnimTest.glb"
+dest_files=["res://.godot/imported/4AnimTest.glb-a185910e37726bbb0faf00fc7a9840f5.scn"]
+
+[params]
+
+scale=50.0
+surfaces_as_nodes=false

@@ -1,24 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=11 format=3 uid="uid://br72rhy767mrr"]
 
 [ext_resource type="PackedScene" uid="uid://cepqxsc377atg" path="res://models/3bones.glb" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://cd60wctr1dovi" path="res://models/basicAnimTest.glb" id="2_0xm2m"]
 [ext_resource type="Texture2D" uid="uid://knm0tnqx2n08" path="res://models/sq_face_sq.png" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://cipujd4wko17m" path="res://models/char01_anim.glb" id="4_1bvp3"]
-
-[sub_resource type="Animation" id="Animation_1bvp3"]
-resource_name = "a"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 18.8496]
-}
+[ext_resource type="PackedScene" uid="uid://dm64ymqbp23gh" path="res://models/2/4AnimTest.glb" id="5_lquwl"]
+[ext_resource type="PackedScene" uid="uid://mhxus4irxkmp" path="res://models/2/4AnimTest0.glb" id="6_7mycd"]
 
 [sub_resource type="Animation" id="Animation_lquwl"]
 length = 0.001
@@ -45,6 +32,21 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(619, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_1bvp3"]
+resource_name = "a"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 18.8496]
 }
 
 [sub_resource type="Animation" id="Animation_7mycd"]
@@ -89,24 +91,93 @@ libraries = {
 }
 
 [node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
+visible = false
 
 [node name="a" parent="3bones/Armature" index="0"]
-position = Vector2(-4.92224e-12, -150)
+rotation = -1.5708
 
 [node name="b" parent="3bones/Armature/a" index="0"]
-position = Vector2(150, -50)
+position = Vector2(4.66275, -50)
+rotation = -0.785399
 
 [node name="c" parent="3bones/Armature/a/b" index="0"]
-position = Vector2(1.90735e-06, -50)
+position = Vector2(7.42924e-07, -50)
+rotation = 1.5708
+
+[node name="c_001" parent="3bones/Armature/a/b/c" index="0"]
+rotation = 0.785398
+
+[node name="c_002" parent="3bones/Armature/a/b/c/c_001" index="0"]
+rotation = 0.785398
+
+[node name="c_003" parent="3bones/Armature/a/b/c/c_001/c_002" index="0"]
+rotation = 0.703899
 
 [node name="char01_anim" parent="." instance=ExtResource("4_1bvp3")]
+visible = false
 
 [node name="torso" parent="char01_anim/Armature" index="0"]
-position = Vector2(0.971174, 25.2593)
+position = Vector2(-3.49626, 32.1689)
 
 [node name="spine" parent="char01_anim/Armature/torso" index="0"]
-rotation = 1.5708
+position = Vector2(8.23797e-08, 0.515302)
+
+[node name="spine1" parent="char01_anim/Armature/torso/spine" index="0"]
+rotation = -0.0596315
+
+[node name="spine2" parent="char01_anim/Armature/torso/spine/spine1" index="0"]
+rotation = -0.0596315
+
+[node name="face_bone" parent="char01_anim/Armature/torso/spine/spine1/spine2/head" index="0"]
+position = Vector2(-2.09528e-06, -11.5636)
+
+[node name="leg01_r" parent="char01_anim/Armature/torso" index="1"]
+position = Vector2(4.05477e-06, 1.66897)
+rotation = 3.12333
+scale = Vector2(1, 1)
+
+[node name="leg02_r" parent="char01_anim/Armature/torso/leg01_r" index="0"]
+rotation = -0.441528
+
+[node name="foot_r" parent="char01_anim/Armature/torso/leg01_r/leg02_r" index="0"]
+rotation = 2.08806
+
+[node name="leg01_l" parent="char01_anim/Armature/torso" index="2"]
+position = Vector2(-5.04796e-06, 1.66897)
+rotation = -2.53145
+
+[node name="leg02_l" parent="char01_anim/Armature/torso/leg01_l" index="0"]
+rotation = -0.219139
+
+[node name="foot_l" parent="char01_anim/Armature/torso/leg01_l/leg02_l" index="0"]
+rotation = 1.23726
+
+[node name="leg_ik_r" parent="char01_anim/Armature" index="1"]
+position = Vector2(-40.8114, 108.351)
+
+[node name="leg_ik_l" parent="char01_anim/Armature" index="2"]
+position = Vector2(46.0703, 108.351)
+
+[node name="4AnimTest" parent="." instance=ExtResource("5_lquwl")]
+
+[node name="main" parent="4AnimTest/Armature" index="0"]
+rotation = -3.14159
+
+[node name="Bone" parent="4AnimTest/Armature/main" index="0"]
+rotation = -3.14159
+
+[node name="R" parent="4AnimTest/Armature/main" index="1"]
+position = Vector2(-17.9751, -2.98023e-06)
+rotation = -1.5708
+
+[node name="L" parent="4AnimTest/Armature/main" index="2"]
+position = Vector2(17.4958, -2.98023e-06)
+rotation = -1.5708
+
+[node name="4AnimTest0" parent="." instance=ExtResource("6_7mycd")]
 
 [editable path="basicAnimTest"]
 [editable path="3bones"]
 [editable path="char01_anim"]
+[editable path="4AnimTest"]
+[editable path="4AnimTest0"]
