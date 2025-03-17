@@ -185,7 +185,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							var skel_name : String = track_node.get_meta("skeleton_name")
 							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
 							bone_rest_transform_3d =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["rest_transform_3d"]
-							#print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
+							print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
 							if bone_parent != null:
 								bone_parent_global_rest_3d = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["global_rest_transform_3d"]
 
@@ -225,8 +225,8 @@ func quaternion_to_string(q : Quaternion):
 	
 
 func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D, parent_global_rest_3d : Transform3D) -> float:
-	#print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
-		#quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
+	print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
+		quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
 	
 	var key_vec = Vector3.UP
 	key_vec = key_rot_3d * key_vec
@@ -236,9 +236,9 @@ func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D,
 	rest_vec = rest_transform_3d.basis.get_rotation_quaternion() * rest_vec
 	rest_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * rest_vec
 	
-	var _angle = key_vec.angle_to(rest_vec)
-	#print(rad_to_deg(_angle))
 	
+	var _angle = Vector2(key_vec.x, key_vec.y).angle_to(Vector2(rest_vec.x, rest_vec.y))
+	print(rad_to_deg(_angle))
 	return _angle
 
 
@@ -285,18 +285,17 @@ func _process_animation(node: Node, animation_data: Dictionary, parent_path: Str
 			var anim : Animation = anim_lib.get_animation(anim_name)
 			animation_data[anim_player_name][anim_name]["length"] = anim.length
 			animation_data[anim_player_name][anim_name]["tracks"] = []
-			#print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
+			print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
 			for i in range(anim.get_track_count()):
 				var current_track = {}
 				current_track["type"] = anim.track_get_type(i)
 				current_track["path"] = str(anim.track_get_path(i)).replace('.', '_')
-				#print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
+				print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
 				var keyframes = []
 				var key_times = []
 				for k in range(anim.track_get_key_count(i)):
 					if current_track["type"] == 2:
 						var q_rot : Quaternion = anim.track_get_key_value(i, k)
-						#print(q_rot.normalized().get_angle())
 					keyframes.append(anim.track_get_key_value(i, k))
 					key_times.append(anim.track_get_key_time(i, k))
 				current_track["keyframes"] = keyframes

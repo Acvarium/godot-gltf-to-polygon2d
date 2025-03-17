@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://5xifcmc6owsg"]
+
+[ext_resource type="PackedScene" uid="uid://qvysjvjlh2yh" path="res://models/2/char02.glb" id="1_bemee"]
+
+[node name="Main2" type="Node2D"]
+
+[node name="char02" parent="." instance=ExtResource("1_bemee")]
+
+[node name="torso" parent="char02/Armature" index="0"]
+position = Vector2(-3.49626, 32.1689)
+rotation = 0.0574719
+
+[node name="leg01_l" parent="char02/Armature/torso" index="0"]
+position = Vector2(16.1436, 1.66897)
+rotation = -0.591701
+
+[node name="leg02_l" parent="char02/Armature/torso/leg01_l" index="0"]
+position = Vector2(0.645169, 34.9782)
+rotation = 0.0372527
+
+[editable path="char02"]

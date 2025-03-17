@@ -6,10 +6,10 @@ size = Vector3(0.1, 1, 0.1)
 [node name="Node3D" type="Node3D"]
 
 [node name="Main" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 
 [node name="R" type="Node3D" parent="Main"]
-transform = Transform3D(-3.09086e-08, -0.707107, -0.707107, 1, -4.37114e-08, 0, -3.09086e-08, -0.707107, 0.707107, 0, 0, 0)
+transform = Transform3D(1, 1.36309e-07, -7.24768e-08, 7.24768e-08, -0.829038, -0.559193, -1.36309e-07, 0.559193, -0.829038, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Main/R"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -17,11 +17,10 @@ mesh = SubResource("PrismMesh_p1i0w")
 metadata/_edit_lock_ = true
 
 [node name="Main2" type="Node3D" parent="."]
-transform = Transform3D(-3.09086e-08, -0.707107, -0.707107, 1, -4.37114e-08, 0, -3.09086e-08, -0.707107, 0.707107, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 visible = false
 
 [node name="R" type="Node3D" parent="Main2"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Main2/R"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
