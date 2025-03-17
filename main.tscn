@@ -78,7 +78,7 @@ _data = {
 visible = false
 
 [node name="Bone1" parent="basicAnimTest/Armature/Bone" index="0"]
-position = Vector2(17.6777, -42.6777)
+position = Vector2(17.6777, -65.9204)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
@@ -93,64 +93,81 @@ libraries = {
 [node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
 visible = false
 
-[node name="a" parent="3bones/Armature" index="0"]
-rotation = -1.5708
-
 [node name="b" parent="3bones/Armature/a" index="0"]
-position = Vector2(4.66275, -50)
-rotation = -0.785399
+position = Vector2(5.96046e-06, -50)
 
 [node name="c" parent="3bones/Armature/a/b" index="0"]
-position = Vector2(7.42924e-07, -50)
-rotation = 1.5708
+position = Vector2(13.2701, -50)
 
 [node name="c_001" parent="3bones/Armature/a/b/c" index="0"]
-rotation = 0.785398
+position = Vector2(-9.60273e-14, -50)
 
 [node name="c_002" parent="3bones/Armature/a/b/c/c_001" index="0"]
-rotation = 0.785398
+position = Vector2(2.98023e-06, -50)
 
 [node name="c_003" parent="3bones/Armature/a/b/c/c_001/c_002" index="0"]
-rotation = 0.703899
+position = Vector2(2.98023e-06, -50)
+
+[node name="4AnimTest0" parent="." instance=ExtResource("6_7mycd")]
+visible = false
+
+[node name="4AnimTest" parent="." instance=ExtResource("5_lquwl")]
+visible = false
+
+[node name="Bone1" parent="4AnimTest/Armature/main/Bone" index="0"]
+position = Vector2(0, -50)
+
+[node name="R" parent="4AnimTest/Armature/main" index="1"]
+rotation = 0.785398
 
 [node name="char01_anim" parent="." instance=ExtResource("4_1bvp3")]
-visible = false
 
 [node name="torso" parent="char01_anim/Armature" index="0"]
 position = Vector2(-3.49626, 32.1689)
+rotation = -0.0574719
 
 [node name="spine" parent="char01_anim/Armature/torso" index="0"]
-position = Vector2(8.23797e-08, 0.515302)
-
-[node name="spine1" parent="char01_anim/Armature/torso/spine" index="0"]
-rotation = -0.0596315
-
-[node name="spine2" parent="char01_anim/Armature/torso/spine/spine1" index="0"]
-rotation = -0.0596315
-
-[node name="face_bone" parent="char01_anim/Armature/torso/spine/spine1/spine2/head" index="0"]
-position = Vector2(-2.09528e-06, -11.5636)
-
-[node name="leg01_r" parent="char01_anim/Armature/torso" index="1"]
-position = Vector2(4.05477e-06, 1.66897)
-rotation = 3.12333
+position = Vector2(-0.0387613, 0.515305)
+rotation = -0.00713129
 scale = Vector2(1, 1)
 
+[node name="spine1" parent="char01_anim/Armature/torso/spine" index="0"]
+position = Vector2(-4.05643e-07, -16.6667)
+rotation = -0.0596314
+
+[node name="spine2" parent="char01_anim/Armature/torso/spine/spine1" index="0"]
+position = Vector2(-1.14605e-07, -16.6667)
+rotation = -0.0596314
+
+[node name="head" parent="char01_anim/Armature/torso/spine/spine1/spine2" index="0"]
+position = Vector2(-4.73967, -21.3309)
+
+[node name="face_bone" parent="char01_anim/Armature/torso/spine/spine1/spine2/head" index="0"]
+position = Vector2(1.91805e-07, -11.5636)
+
+[node name="leg01_r" parent="char01_anim/Armature/torso" index="1"]
+position = Vector2(-11.6625, 1.66897)
+rotation = -0.0367062
+
 [node name="leg02_r" parent="char01_anim/Armature/torso/leg01_r" index="0"]
-rotation = -0.441528
+position = Vector2(0.645168, 34.9782)
+rotation = -0.259643
 
 [node name="foot_r" parent="char01_anim/Armature/torso/leg01_r/leg02_r" index="0"]
-rotation = 2.08806
+position = Vector2(-7.5448, 45.7499)
+rotation = -0.353821
 
 [node name="leg01_l" parent="char01_anim/Armature/torso" index="2"]
-position = Vector2(-5.04796e-06, 1.66897)
-rotation = -2.53145
+position = Vector2(16.1436, 1.66897)
+rotation = -0.591701
 
 [node name="leg02_l" parent="char01_anim/Armature/torso/leg01_l" index="0"]
-rotation = -0.219139
+position = Vector2(0.645169, 34.9782)
+rotation = -0.0372527
 
 [node name="foot_l" parent="char01_anim/Armature/torso/leg01_l/leg02_l" index="0"]
-rotation = 1.23726
+position = Vector2(-7.54481, 45.7499)
+rotation = -0.496977
 
 [node name="leg_ik_r" parent="char01_anim/Armature" index="1"]
 position = Vector2(-40.8114, 108.351)
@@ -158,26 +175,8 @@ position = Vector2(-40.8114, 108.351)
 [node name="leg_ik_l" parent="char01_anim/Armature" index="2"]
 position = Vector2(46.0703, 108.351)
 
-[node name="4AnimTest" parent="." instance=ExtResource("5_lquwl")]
-
-[node name="main" parent="4AnimTest/Armature" index="0"]
-rotation = -3.14159
-
-[node name="Bone" parent="4AnimTest/Armature/main" index="0"]
-rotation = -3.14159
-
-[node name="R" parent="4AnimTest/Armature/main" index="1"]
-position = Vector2(-17.9751, -2.98023e-06)
-rotation = -1.5708
-
-[node name="L" parent="4AnimTest/Armature/main" index="2"]
-position = Vector2(17.4958, -2.98023e-06)
-rotation = -1.5708
-
-[node name="4AnimTest0" parent="." instance=ExtResource("6_7mycd")]
-
 [editable path="basicAnimTest"]
 [editable path="3bones"]
-[editable path="char01_anim"]
-[editable path="4AnimTest"]
 [editable path="4AnimTest0"]
+[editable path="4AnimTest"]
+[editable path="char01_anim"]

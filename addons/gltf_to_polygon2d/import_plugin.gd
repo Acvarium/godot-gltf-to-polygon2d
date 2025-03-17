@@ -45,7 +45,7 @@ func _get_option_visibility(preset_name: String, option_name: StringName, option
 
 func _import(source_file: String, save_path: String, options: Dictionary, r_platform_variants: Array[String], r_gen_files: Array[String]) -> int:
 	var scale = options.get("scale", 1.0)
-	var surfaces_as_nodes :bool = options.get("surfaces_as_nodes", false)
+	var surfaces_as_nodes :bool = options.get("surfaces_as_nodes", true)
 	var importer := GLTFDocument.new()
 
 	var state := GLTFState.new()
@@ -86,8 +86,8 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			bone2d.name = bone_info["name"]
 			var initial_rotation = _get_bone_initial_rotation(skeletons_3d[skel_name], bone_id)
 			bones_data[bone_id]["initial_rotation"] = initial_rotation
-			bones_data[bone_id]["global_3d_transform"] = skeletons_3d[skel_name].get_bone_global_pose(bone_id)
-			bones_data[bone_id]["local_3d_transform"] = skeletons_3d[skel_name].get_bone_pose(bone_id)
+			bones_data[bone_id]["rest_transform_3d"] = skeletons_3d[skel_name].get_bone_rest(bone_id)
+			bones_data[bone_id]["global_rest_transform_3d"] = skeletons_3d[skel_name].get_bone_global_pose(bone_id)
 			
 			#-----
 			var up_vec_rot = Vector2(Vector3.DOWN.x, Vector3.DOWN.y)
@@ -186,7 +186,8 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 					
 					var coordinate_rotation = 0.0
 					var rot_correction = 0.0
-					var global_3d_transform = Transform3D()
+					var bone_rest_transform_3d = Transform3D()
+					var bone_parent_global_rest_3d = Transform3D()
 					
 					if split_node_name.size() > 1 and split_node_name[1] in nodes.keys():
 						track_node_path = node2d.get_path_to(nodes[split_node_name[1]])
@@ -196,30 +197,19 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							var bone_id : int = track_node.get_meta("bone_id")
 							var skel_name : String = track_node.get_meta("skeleton_name")
 							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
+							bone_rest_transform_3d =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["rest_transform_3d"]
 							var root_bone_rot = get_root_bone_rot(skeletons_2d_data[skel_name]["bones_data"], bone_id)
-							global_3d_transform =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["global_3d_transform"]
+							print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
 							if bone_parent != null:
 								coordinate_rotation = root_bone_rot
-								var parent_rot = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["initial_rotation"]
-								rot_correction = -skeletons_2d_data[skel_name]["bones_data"][bone_id]["initial_rotation"] + \
-									skeletons_2d_data[skel_name]["bones_data"][bone_parent]["initial_rotation"]
-							else:
-								rot_correction = -skeletons_2d_data[skel_name]["bones_data"][bone_id]["initial_rotation"]
-							if track_data["type"] == Animation.TrackType.TYPE_ROTATION_3D:
-								var parent_name = ""
-								if bone_parent != null:
-									parent_name = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["name"]
-								print(track_data["path"] + " " + str(rot_correction) + " " + \
-									skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + \
-									parent_name)
-								
-							var full_rot = 0.0
+								bone_parent_global_rest_3d = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["global_rest_transform_3d"]
+
 					if track_data["type"] == Animation.TrackType.TYPE_POSITION_3D:
 						var pos_track_id = animation.add_track(Animation.TYPE_VALUE)
 						if not track_node_path.is_empty():
 							animation.track_set_path(pos_track_id, NodePath(str(track_node_path) + ":position"))
 							for i in range(track_data["keyframes"].size()):
-								var pos2d = pos3d_to_2d(track_data["keyframes"][i], scale, coordinate_rotation)
+								var pos2d = pos3d_to_2d(track_data["keyframes"][i], bone_parent_global_rest_3d, scale)
 								animation.track_insert_key(pos_track_id, track_data["key_times"][i], pos2d)
 					elif track_data["type"] == Animation.TrackType.TYPE_ROTATION_3D:
 						var rot_track_id = animation.add_track(Animation.TYPE_VALUE)
@@ -227,23 +217,27 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							animation.track_set_path(rot_track_id, NodePath(str(track_node_path) + ":rotation"))
 						var prev_angle = 0.0
 						for i in range(track_data["keyframes"].size()):
-							#var rot2d = rot3d_to_2d(track_data["keyframes"][i], rot_correction)
-							var rot2d = calc_rot_key_value(track_data["keyframes"][i], global_3d_transform)
+							var rot_2d = calc_rotation_key(track_data["keyframes"][i], bone_rest_transform_3d, bone_parent_global_rest_3d)
 							var angle_shift = 0.0
 							if i > 0:
-								var angle_diff = rot2d - prev_angle
+								var angle_diff = rot_2d - prev_angle
 								angle_shift = PI * 2 * (1.0 + int(abs(angle_diff) / (PI * 2)))
 								if angle_diff > PI:
-									rot2d -= angle_shift
+									rot_2d -= angle_shift
 								elif angle_diff < -PI:
-									rot2d += angle_shift
-							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot2d)
-							prev_angle = rot2d
+									rot_2d += angle_shift
+							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot_2d)
+							prev_angle = rot_2d
 						
 				global_library.add_animation(anim_name, animation)
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
+
+func quaternion_to_string(q : Quaternion):
+	var qe = q.get_euler()
+	return str(Vector3i(rad_to_deg(qe.x), rad_to_deg(qe.y), rad_to_deg(qe.z)))
+	
 
 func get_root_bone_rot(bones_data : Dictionary, bone_id : int) -> float:
 	var parent = bones_data[bone_id]["parent"]
@@ -252,20 +246,23 @@ func get_root_bone_rot(bones_data : Dictionary, bone_id : int) -> float:
 	return get_root_bone_rot(bones_data, parent)
 
 
-func calc_rot_key_value(key_3d_rot : Quaternion, global_3d_transform : Transform3D) -> float:
-	var q_euler = key_3d_rot.get_euler()
-	var deg = Vector3(rad_to_deg(q_euler.x), rad_to_deg(q_euler.y),rad_to_deg(q_euler.z))
+
+func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D, parent_global_rest_3d : Transform3D) -> float:
+	#print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
+		#quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
 	
-	print(deg)
-	var base_vec_3d = global_3d_transform.basis.get_rotation_quaternion() * Vector3.UP
-	var base_vec_2d = Vector2(base_vec_3d.x, base_vec_3d.y)
+	var key_vec = Vector3.UP
+	key_vec = key_rot_3d * key_vec
+	key_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * key_vec
 	
-	var global_rotation = global_3d_transform.basis.get_rotation_quaternion() * key_3d_rot
-	var transformed_vector = global_rotation * Vector3.UP
+	var rest_vec = Vector3.UP
+	rest_vec = rest_transform_3d.basis.get_rotation_quaternion() * rest_vec
+	rest_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * rest_vec
 	
-	var key_angle = Vector2(transformed_vector.x, transformed_vector.y).angle_to(base_vec_2d)
-	#print("_____" + str(rad_to_deg(key_angle)))
-	return key_angle
+	var _angle = key_vec.angle_to(rest_vec)
+	#print(rad_to_deg(_angle))
+	
+	return _angle
 
 
 func _get_bone_initial_rotation(skeleton: Skeleton3D, bone_id: int) -> float:
@@ -285,15 +282,9 @@ func _apply_parent_rotation(position: Vector2, parent_rotation: float) -> Vector
 	)
 
 
-func pos3d_to_2d(pos3d : Vector3, scale : float = 1.0, coordinate_rotation = 0.0) -> Vector2:
-	return Vector2(pos3d.x * scale, -pos3d.y * scale).rotated(coordinate_rotation)
-
-
-func rot3d_to_2d(rot3d : Quaternion, coordinate_rotation = 0.0) -> float:
-	var vec := Vector3.UP
-	var rot_vec = (rot3d * vec).normalized()
-	var angle = Vector2(rot_vec.x, -rot_vec.y).angle()
-	return Vector2(rot_vec.x, -rot_vec.y).angle() + coordinate_rotation
+func pos3d_to_2d(pos_3d : Vector3, parent_global_rest_3d : Transform3D, scale : float = 1.0,) -> Vector2:
+	var vec = parent_global_rest_3d.basis.get_rotation_quaternion() * pos_3d
+	return Vector2(vec.x, -vec.y) * scale
 
 
 func _process_bone_nodes(node: Node, skeletons_3d: Dictionary, parent_path: String = ""):
