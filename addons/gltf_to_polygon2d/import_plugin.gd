@@ -84,21 +84,8 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			var bone_info = bones_data[bone_id]
 			var bone2d = Bone2D.new()
 			bone2d.name = bone_info["name"]
-			var initial_rotation = _get_bone_initial_rotation(skeletons_3d[skel_name], bone_id)
-			bones_data[bone_id]["initial_rotation"] = initial_rotation
 			bones_data[bone_id]["rest_transform_3d"] = skeletons_3d[skel_name].get_bone_rest(bone_id)
 			bones_data[bone_id]["global_rest_transform_3d"] = skeletons_3d[skel_name].get_bone_global_pose(bone_id)
-			
-			#-----
-			var up_vec_rot = Vector2(Vector3.DOWN.x, Vector3.DOWN.y)
-			var vec_3d = skeletons_3d[skel_name].get_bone_global_pose(bone_id).basis * Vector3.DOWN
-			var rot = Vector2(vec_3d.x, vec_3d.y).angle_to(up_vec_rot)
-			
-			var qv = skeletons_3d[skel_name].get_bone_rest(bone_id).basis.get_rotation_quaternion().get_euler()
-			var er = Vector3(rad_to_deg(qv.x), rad_to_deg(qv.y), rad_to_deg(qv.z))
-			
-			print(bone2d.name + " " + str(er))
-			#-----
 			
 			bones[bone_id] = bone2d
 			bone2d.set_meta("bone_id", bone_id)
@@ -198,10 +185,8 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							var skel_name : String = track_node.get_meta("skeleton_name")
 							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
 							bone_rest_transform_3d =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["rest_transform_3d"]
-							var root_bone_rot = get_root_bone_rot(skeletons_2d_data[skel_name]["bones_data"], bone_id)
-							print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
+							#print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
 							if bone_parent != null:
-								coordinate_rotation = root_bone_rot
 								bone_parent_global_rest_3d = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["global_rest_transform_3d"]
 
 					if track_data["type"] == Animation.TrackType.TYPE_POSITION_3D:
@@ -238,14 +223,6 @@ func quaternion_to_string(q : Quaternion):
 	var qe = q.get_euler()
 	return str(Vector3i(rad_to_deg(qe.x), rad_to_deg(qe.y), rad_to_deg(qe.z)))
 	
-
-func get_root_bone_rot(bones_data : Dictionary, bone_id : int) -> float:
-	var parent = bones_data[bone_id]["parent"]
-	if parent == null:
-		return bones_data[bone_id]["initial_rotation"]
-	return get_root_bone_rot(bones_data, parent)
-
-
 
 func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D, parent_global_rest_3d : Transform3D) -> float:
 	#print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
