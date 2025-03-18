@@ -1,183 +1,58 @@
-[gd_scene load_steps=11 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
 
-[ext_resource type="PackedScene" uid="uid://cepqxsc377atg" path="res://models/3bones.glb" id="1_ig7tw"]
-[ext_resource type="PackedScene" uid="uid://cd60wctr1dovi" path="res://models/basicAnimTest.glb" id="2_0xm2m"]
-[ext_resource type="Texture2D" uid="uid://knm0tnqx2n08" path="res://models/sq_face_sq.png" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://cipujd4wko17m" path="res://models/char01_anim.glb" id="4_1bvp3"]
-[ext_resource type="PackedScene" uid="uid://dm64ymqbp23gh" path="res://models/2/4AnimTest.glb" id="5_lquwl"]
-[ext_resource type="PackedScene" uid="uid://mhxus4irxkmp" path="res://models/2/4AnimTest0.glb" id="6_7mycd"]
-
-[sub_resource type="Animation" id="Animation_lquwl"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(619, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_1bvp3"]
-resource_name = "a"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 18.8496]
-}
-
-[sub_resource type="Animation" id="Animation_7mycd"]
-resource_name = "b"
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.49915),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(619, 0), Vector2(623, -161)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_272bh"]
-_data = {
-&"RESET": SubResource("Animation_lquwl"),
-&"a": SubResource("Animation_1bvp3"),
-&"b": SubResource("Animation_7mycd")
-}
 
 [node name="Main" type="Node2D"]
 
-[node name="basicAnimTest" parent="." instance=ExtResource("2_0xm2m")]
-visible = false
-
-[node name="Bone1" parent="basicAnimTest/Armature/Bone" index="0"]
-position = Vector2(17.6777, -65.9204)
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(619, 0)
-texture = ExtResource("2_h2yge")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite2D"]
-libraries = {
-&"": SubResource("AnimationLibrary_272bh")
-}
-
-[node name="3bones" parent="." instance=ExtResource("1_ig7tw")]
-visible = false
-
-[node name="b" parent="3bones/Armature/a" index="0"]
-position = Vector2(5.96046e-06, -50)
-
-[node name="c" parent="3bones/Armature/a/b" index="0"]
-position = Vector2(13.2701, -50)
-
-[node name="c_001" parent="3bones/Armature/a/b/c" index="0"]
-position = Vector2(-9.60273e-14, -50)
-
-[node name="c_002" parent="3bones/Armature/a/b/c/c_001" index="0"]
-position = Vector2(2.98023e-06, -50)
-
-[node name="c_003" parent="3bones/Armature/a/b/c/c_001/c_002" index="0"]
-position = Vector2(2.98023e-06, -50)
-
-[node name="4AnimTest0" parent="." instance=ExtResource("6_7mycd")]
-visible = false
-
-[node name="4AnimTest" parent="." instance=ExtResource("5_lquwl")]
-visible = false
-
-[node name="Bone1" parent="4AnimTest/Armature/main/Bone" index="0"]
-position = Vector2(0, -50)
-
-[node name="R" parent="4AnimTest/Armature/main" index="1"]
-rotation = 0.785398
-
 [node name="char01_anim" parent="." instance=ExtResource("4_1bvp3")]
 
-[node name="torso" parent="char01_anim/Armature" index="0"]
-position = Vector2(-3.49626, 32.1689)
-rotation = 0.0574719
+[node name="Armature" parent="char01_anim" index="0"]
+visible = false
 
-[node name="spine" parent="char01_anim/Armature/torso" index="0"]
-position = Vector2(-0.0387609, 0.515302)
-rotation = 0.0071313
-scale = Vector2(1, 1)
+[node name="spine" parent="char01_anim/Armature" index="0"]
+position = Vector2(-3.37015, 33.4559)
+rotation = 0.0735575
 
-[node name="spine1" parent="char01_anim/Armature/torso/spine" index="0"]
-position = Vector2(-3.31141e-08, -16.6667)
-rotation = 0.0596314
+[node name="spine1" parent="char01_anim/Armature/spine" index="0"]
+position = Vector2(-3.3114e-08, -16.6667)
+rotation = 0.10646
 
-[node name="spine2" parent="char01_anim/Armature/torso/spine/spine1" index="0"]
+[node name="spine2" parent="char01_anim/Armature/spine/spine1" index="0"]
 position = Vector2(-2.19378e-07, -16.6667)
-rotation = 0.0596314
+rotation = 0.0174028
 
-[node name="head" parent="char01_anim/Armature/torso/spine/spine1/spine2" index="0"]
+[node name="head" parent="char01_anim/Armature/spine/spine1/spine2" index="0"]
 position = Vector2(-4.73967, -21.3309)
+rotation = -0.00426196
 
-[node name="face_bone" parent="char01_anim/Armature/torso/spine/spine1/spine2/head" index="0"]
-position = Vector2(2.15088e-07, -11.5636)
+[node name="face_bone" parent="char01_anim/Armature/spine/spine1/spine2/head" index="0"]
+position = Vector2(0.282045, -11.1105)
 
-[node name="leg01_r" parent="char01_anim/Armature/torso" index="1"]
-position = Vector2(-11.6625, 1.66897)
-rotation = 0.0367062
+[node name="leg01_r" parent="char01_anim/Armature" index="1"]
+position = Vector2(1.5261, 37.0161)
+rotation = -0.974546
 
-[node name="leg02_r" parent="char01_anim/Armature/torso/leg01_r" index="0"]
+[node name="leg02_r" parent="char01_anim/Armature/leg01_r" index="0"]
 position = Vector2(0.645166, 34.9782)
-rotation = 0.259643
-
-[node name="foot_r" parent="char01_anim/Armature/torso/leg01_r/leg02_r" index="0"]
-position = Vector2(-7.54481, 45.7499)
-rotation = 0.353821
-
-[node name="leg01_l" parent="char01_anim/Armature/torso" index="2"]
-position = Vector2(16.1436, 1.66897)
-rotation = 0.591701
+rotation = 0.778787
 scale = Vector2(1, 1)
 
-[node name="leg02_l" parent="char01_anim/Armature/torso/leg01_l" index="0"]
-position = Vector2(0.645168, 34.9782)
-rotation = 0.0372526
-
-[node name="foot_l" parent="char01_anim/Armature/torso/leg01_l/leg02_l" index="0"]
+[node name="foot_r" parent="char01_anim/Armature/leg01_r/leg02_r" index="0"]
 position = Vector2(-7.54481, 45.7499)
-rotation = 0.496977
+rotation = -0.0136436
+scale = Vector2(1, 1)
 
-[node name="leg_ik_r" parent="char01_anim/Armature" index="1"]
-position = Vector2(-40.8114, 108.351)
+[node name="leg01_l" parent="char01_anim/Armature" index="2"]
+position = Vector2(-11.3577, 37.8708)
+rotation = -0.181935
+scale = Vector2(1, 1)
 
-[node name="leg_ik_l" parent="char01_anim/Armature" index="2"]
-position = Vector2(46.0703, 108.351)
+[node name="leg02_l" parent="char01_anim/Armature/leg01_l" index="0"]
+position = Vector2(0.645169, 34.9782)
+rotation = 0.693227
 
-[editable path="basicAnimTest"]
-[editable path="3bones"]
-[editable path="4AnimTest0"]
-[editable path="4AnimTest"]
+[node name="foot_l" parent="char01_anim/Armature/leg01_l/leg02_l" index="0"]
+position = Vector2(-7.54481, 45.7499)
+rotation = -0.511316
+
 [editable path="char01_anim"]
