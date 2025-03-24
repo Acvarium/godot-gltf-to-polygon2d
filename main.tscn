@@ -35,12 +35,10 @@ rotation = -0.974546
 [node name="leg02_r" parent="char01_anim/Armature/leg01_r" index="0"]
 position = Vector2(0.645166, 34.9782)
 rotation = 0.778787
-scale = Vector2(1, 1)
 
 [node name="foot_r" parent="char01_anim/Armature/leg01_r/leg02_r" index="0"]
 position = Vector2(-7.54481, 45.7499)
 rotation = -0.0136436
-scale = Vector2(1, 1)
 
 [node name="leg01_l" parent="char01_anim/Armature" index="2"]
 position = Vector2(-11.3577, 37.8708)
