@@ -213,7 +213,16 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 									rot_2d += angle_shift
 							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot_2d)
 							prev_angle = rot_2d
+					elif track_data["type"] == Animation.TrackType.TYPE_SCALE_3D:
+						var scale_track_id = animation.add_track(Animation.TYPE_VALUE)
+						if not track_node_path.is_empty():
+							animation.track_set_path(scale_track_id, NodePath(str(track_node_path) + ":scale"))
+						var base_scale = Vector2(1.0, 1.0)
 						
+						for i in range(track_data["keyframes"].size()):
+							var scale_value = track_data["keyframes"][i].x
+							animation.track_insert_key(scale_track_id, track_data["key_times"][i], base_scale * scale_value)
+							
 				global_library.add_animation(anim_name, animation)
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
@@ -235,7 +244,6 @@ func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D,
 	var rest_vec = Vector3.UP
 	rest_vec = rest_transform_3d.basis.get_rotation_quaternion() * rest_vec
 	rest_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * rest_vec
-	
 	
 	var _angle = Vector2(key_vec.x, key_vec.y).angle_to(Vector2(rest_vec.x, rest_vec.y))
 	print(rad_to_deg(_angle))
