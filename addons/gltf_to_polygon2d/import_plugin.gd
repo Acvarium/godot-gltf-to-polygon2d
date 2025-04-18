@@ -108,15 +108,21 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			
 		skeletons_2d_data[skel_name]["bones"] = bones
 		skeletons_2d_data[skel_name]["bones_data"] = bones_data
-		print("\n")
-		print(skeletons_2d_data)
-		print("\n")
+		#print("\n")
+		#print(skeletons_2d_data)
+		#print("\n")
 #-------------------------------------------------------------------------------
 #-------     POLYGON
 #-------------------------------------------------------------------------------
 	var meshes = {}
 	_process_node(scene_root, meshes, scale)
-	for key in meshes.keys():
+	
+	var sorted_keys = meshes.keys()
+	sorted_keys.sort_custom(func(a, b):
+		return meshes[a]["z_pos"] < meshes[b]["z_pos"]
+	)
+
+	for key in sorted_keys:
 		var polygon2d := Polygon2D.new()
 		polygon2d.name = key
 		nodes[key] = polygon2d
@@ -148,7 +154,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 	var packed_scene = PackedScene.new()
 	var animation_data = {}
 	_process_animation(scene_root, animation_data)
-	if not animation_data.is_empty():
+	if animation_data and not animation_data.is_empty():
 		for anim_player_name in animation_data.keys():
 #----------------------ANIMATION PLAYER
 			var animation_player := AnimationPlayer.new()
@@ -165,7 +171,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 				var animation := Animation.new()
 				animation.loop_mode = Animation.LOOP_LINEAR
 				animation.length = animation_data[anim_player_name][anim_name]["length"]
-				print("______" + anim_name)
+				#print("______" + anim_name)
 				for track_data : Dictionary in animation_data[anim_player_name][anim_name]["tracks"]:
 					var track_node_path : NodePath
 					var split_node_name = str(track_data["path"]).split(":")
@@ -185,20 +191,20 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							var skel_name : String = track_node.get_meta("skeleton_name")
 							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
 							bone_rest_transform_3d =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["rest_transform_3d"]
-							print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
+							#print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
 							if bone_parent != null:
 								bone_parent_global_rest_3d = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["global_rest_transform_3d"]
 
 					if track_data["type"] == Animation.TrackType.TYPE_POSITION_3D:
 						var pos_track_id = animation.add_track(Animation.TYPE_VALUE)
-						if not track_node_path.is_empty():
+						if track_node_path != null and not track_node_path.is_empty():
 							animation.track_set_path(pos_track_id, NodePath(str(track_node_path) + ":position"))
 							for i in range(track_data["keyframes"].size()):
 								var pos2d = pos3d_to_2d(track_data["keyframes"][i], bone_parent_global_rest_3d, scale)
 								animation.track_insert_key(pos_track_id, track_data["key_times"][i], pos2d)
 					elif track_data["type"] == Animation.TrackType.TYPE_ROTATION_3D:
 						var rot_track_id = animation.add_track(Animation.TYPE_VALUE)
-						if not track_node_path.is_empty():
+						if track_node_path != null and not track_node_path.is_empty():
 							animation.track_set_path(rot_track_id, NodePath(str(track_node_path) + ":rotation"))
 						var prev_angle = 0.0
 						for i in range(track_data["keyframes"].size()):
@@ -215,7 +221,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							prev_angle = rot_2d
 					elif track_data["type"] == Animation.TrackType.TYPE_SCALE_3D:
 						var scale_track_id = animation.add_track(Animation.TYPE_VALUE)
-						if not track_node_path.is_empty():
+						if track_node_path != null and not track_node_path.is_empty():
 							animation.track_set_path(scale_track_id, NodePath(str(track_node_path) + ":scale"))
 						var base_scale = Vector2(1.0, 1.0)
 						
@@ -234,8 +240,8 @@ func quaternion_to_string(q : Quaternion):
 	
 
 func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D, parent_global_rest_3d : Transform3D) -> float:
-	print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
-		quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
+	#print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
+		#quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
 	
 	var key_vec = Vector3.UP
 	key_vec = key_rot_3d * key_vec
@@ -246,7 +252,7 @@ func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D,
 	rest_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * rest_vec
 	
 	var _angle = Vector2(key_vec.x, key_vec.y).angle_to(Vector2(rest_vec.x, rest_vec.y))
-	print(rad_to_deg(_angle))
+	#print(rad_to_deg(_angle))
 	return _angle
 
 
@@ -293,12 +299,12 @@ func _process_animation(node: Node, animation_data: Dictionary, parent_path: Str
 			var anim : Animation = anim_lib.get_animation(anim_name)
 			animation_data[anim_player_name][anim_name]["length"] = anim.length
 			animation_data[anim_player_name][anim_name]["tracks"] = []
-			print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
+			#print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
 			for i in range(anim.get_track_count()):
 				var current_track = {}
 				current_track["type"] = anim.track_get_type(i)
 				current_track["path"] = str(anim.track_get_path(i)).replace('.', '_')
-				print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
+				#print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
 				var keyframes = []
 				var key_times = []
 				for k in range(anim.track_get_key_count(i)):
@@ -352,7 +358,7 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 		if mesh is ImporterMesh:
 			mesh = mesh.get_mesh()
 			if mesh is ArrayMesh:
-				
+				var z_pos = 0.0
 				var texture_path = ""
 				var material: Material = mesh.surface_get_material(0)
 				if material is BaseMaterial3D:
@@ -382,6 +388,7 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 					var verts = []
 					if array.size() > Mesh.ARRAY_VERTEX:
 						verts = array[Mesh.ARRAY_VERTEX]
+						z_pos = verts[0].z
 						for v in verts:
 							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) * scale)
 					if array.size() > Mesh.ARRAY_TEX_UV:
@@ -411,6 +418,7 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 				meshes[mesh_name]["vert_array"] = vert_array
 				meshes[mesh_name]["polygons_array"] = index_array
 				meshes[mesh_name]["weights_dict"] = weights_dict  # Тепер словник {bone_idx: PackedFloat32Array}
+				meshes[mesh_name]["z_pos"] = z_pos
 				if texture_path != "":
 					meshes[mesh_name]["texture_path"] = texture_path
 				if node.get_parent() and node.get_parent() is Skeleton3D and node.get_parent().get_parent():

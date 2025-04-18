@@ -1,39 +1,110 @@
-[gd_scene load_steps=2 format=3 uid="uid://br72rhy767mrr"]
+[gd_scene load_steps=3 format=3 uid="uid://br72rhy767mrr"]
 
+[ext_resource type="PackedScene" uid="uid://d1x6dvf1bbl7d" path="res://models/animal/take_photo_animal_faces.glb" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://cipujd4wko17m" path="res://models/char01_anim.glb" id="4_1bvp3"]
 
 [node name="Main" type="Node2D"]
 
 [node name="char01_anim" parent="." instance=ExtResource("4_1bvp3")]
-
-[node name="Armature" parent="char01_anim" index="0"]
 visible = false
 
-[node name="spine" parent="char01_anim/Armature" index="0"]
-rotation = 0.430826
+[node name="spine" parent="char01_anim/Armature/torso" index="0"]
+position = Vector2(-3.58572e-08, 5.91805e-06)
 
-[node name="spine1" parent="char01_anim/Armature/spine" index="0"]
+[node name="spine1" parent="char01_anim/Armature/torso/spine" index="0"]
 position = Vector2(-1.26246e-07, -16.6667)
 
-[node name="spine2" parent="char01_anim/Armature/spine/spine1" index="0"]
+[node name="spine2" parent="char01_anim/Armature/torso/spine/spine1" index="0"]
 position = Vector2(-1.26246e-07, -16.6667)
 
-[node name="head" parent="char01_anim/Armature/spine/spine1/spine2" index="0"]
+[node name="head" parent="char01_anim/Armature/torso/spine/spine1/spine2" index="0"]
 position = Vector2(-4.73967, -21.3309)
 
-[node name="face_bone" parent="char01_anim/Armature/spine/spine1/spine2/head" index="0"]
-position = Vector2(-8.75914e-08, -11.5636)
+[node name="face_bone" parent="char01_anim/Armature/torso/spine/spine1/spine2/head" index="0"]
+position = Vector2(-8.75915e-08, -11.5636)
 
-[node name="leg02_r" parent="char01_anim/Armature/leg01_r" index="0"]
+[node name="leg01_r" parent="char01_anim/Armature/torso" index="1"]
+position = Vector2(-11.6625, 1.66896)
+
+[node name="leg02_r" parent="char01_anim/Armature/torso/leg01_r" index="0"]
 position = Vector2(0.645167, 34.9782)
 
-[node name="foot_r" parent="char01_anim/Armature/leg01_r/leg02_r" index="0"]
+[node name="foot_r" parent="char01_anim/Armature/torso/leg01_r/leg02_r" index="0"]
 position = Vector2(-7.54481, 45.7499)
 
-[node name="leg02_l" parent="char01_anim/Armature/leg01_l" index="0"]
-position = Vector2(0.645166, 34.9782)
+[node name="leg01_l" parent="char01_anim/Armature/torso" index="2"]
+position = Vector2(16.1436, 1.66896)
 
-[node name="foot_l" parent="char01_anim/Armature/leg01_l/leg02_l" index="0"]
+[node name="leg02_l" parent="char01_anim/Armature/torso/leg01_l" index="0"]
+position = Vector2(0.645165, 34.9782)
+
+[node name="foot_l" parent="char01_anim/Armature/torso/leg01_l/leg02_l" index="0"]
 position = Vector2(-7.5448, 45.7499)
 
+[node name="take_photo_animal_faces" parent="." instance=ExtResource("2_0xm2m")]
+
+[node name="Master" parent="take_photo_animal_faces/Armature" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="body" parent="take_photo_animal_faces/Armature" index="1"]
+editor_settings/show_bone_gizmo = false
+
+[node name="neck01" parent="take_photo_animal_faces/Armature/body" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="neck02" parent="take_photo_animal_faces/Armature/body/neck01" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="neck03" parent="take_photo_animal_faces/Armature/body/neck01/neck02" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="neck04" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="neck05" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="face_2" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="ear_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="ear_l" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="1"]
+editor_settings/show_bone_gizmo = false
+
+[node name="eyeball_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="2"]
+editor_settings/show_bone_gizmo = false
+
+[node name="eyeball_l" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="3"]
+editor_settings/show_bone_gizmo = false
+
+[node name="pupils" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="4"]
+editor_settings/show_bone_gizmo = false
+
+[node name="pupil_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2/pupils" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="pupil_l" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2/pupils" index="1"]
+editor_settings/show_bone_gizmo = false
+
+[node name="mouth_main" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="5"]
+editor_settings/show_bone_gizmo = false
+
+[node name="mouth" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2/mouth_main" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="visibility" parent="take_photo_animal_faces/Armature" index="2"]
+editor_settings/show_bone_gizmo = false
+
+[node name="eyes_visible" parent="take_photo_animal_faces/Armature/visibility" index="0"]
+editor_settings/show_bone_gizmo = false
+
+[node name="eyes_pupils_visible" parent="take_photo_animal_faces/Armature/visibility" index="1"]
+editor_settings/show_bone_gizmo = false
+
+[node name="eyes_closed_visible" parent="take_photo_animal_faces/Armature/visibility" index="2"]
+editor_settings/show_bone_gizmo = false
+
 [editable path="char01_anim"]
+[editable path="take_photo_animal_faces"]

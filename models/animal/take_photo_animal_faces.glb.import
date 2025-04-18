@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://d1x6dvf1bbl7d"
+path="res://.godot/imported/take_photo_animal_faces.glb-4120d7a98b66f5d85a3b0ad9ed1c261c.scn"
+
+[deps]
+
+source_file="res://models/animal/take_photo_animal_faces.glb"
+dest_files=["res://.godot/imported/take_photo_animal_faces.glb-4120d7a98b66f5d85a3b0ad9ed1c261c.scn"]
+
+[params]
+
+scale=50.0
+surfaces_as_nodes=false
