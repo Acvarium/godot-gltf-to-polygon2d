@@ -75,6 +75,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 		skeleton2d.name = skel_name
 		node2d.add_child(skeleton2d, true)
 		skeleton2d.owner = node2d
+		skeleton2d.visible = false
 		skeletons_2d_data[skel_name] = {}
 		skeletons_2d_data[skel_name]["skeleton"] = skeleton2d
 		nodes[skel_name] = skeleton2d
@@ -108,9 +109,6 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			
 		skeletons_2d_data[skel_name]["bones"] = bones
 		skeletons_2d_data[skel_name]["bones_data"] = bones_data
-		#print("\n")
-		#print(skeletons_2d_data)
-		#print("\n")
 #-------------------------------------------------------------------------------
 #-------     POLYGON
 #-------------------------------------------------------------------------------
@@ -168,10 +166,10 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 #------------------------------------------------------------------------------
 #----------------------ANIMATIONS
 			for anim_name in animation_data[anim_player_name].keys():
+				var visibility_anim_data = {}
 				var animation := Animation.new()
 				animation.loop_mode = Animation.LOOP_LINEAR
 				animation.length = animation_data[anim_player_name][anim_name]["length"]
-				#print("______" + anim_name)
 				for track_data : Dictionary in animation_data[anim_player_name][anim_name]["tracks"]:
 					var track_node_path : NodePath
 					var split_node_name = str(track_data["path"]).split(":")
@@ -181,20 +179,29 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 					var rot_correction = 0.0
 					var bone_rest_transform_3d = Transform3D()
 					var bone_parent_global_rest_3d = Transform3D()
-					
+					var track_node_name = split_node_name[0]
+
 					if split_node_name.size() > 1 and split_node_name[1] in nodes.keys():
+						if not split_node_name[1] in visibility_anim_data.keys() and split_node_name[1].split('_')[-1] == "visible":
+							var vis_node_name = split_node_name[1].replace("_visible", "")
+							if vis_node_name in nodes.keys():
+								var vis_node_path : NodePath = node2d.get_path_to(nodes[vis_node_name])
+								visibility_anim_data[split_node_name[1]] = {}
+								visibility_anim_data[split_node_name[1]]["node_path"] = vis_node_path
+								
 						track_node_path = node2d.get_path_to(nodes[split_node_name[1]])
-						track_node = nodes[split_node_name[1]]
 						
+						
+						track_node = nodes[split_node_name[1]]
 						if track_node is Bone2D:
 							var bone_id : int = track_node.get_meta("bone_id")
 							var skel_name : String = track_node.get_meta("skeleton_name")
 							var bone_parent = skeletons_2d_data[skel_name]["bones_data"][bone_id]["parent"]
 							bone_rest_transform_3d =  skeletons_2d_data[skel_name]["bones_data"][bone_id]["rest_transform_3d"]
-							#print("= " + skeletons_2d_data[skel_name]["bones_data"][bone_id]["name"] + " " + str(track_data["type"]))
 							if bone_parent != null:
 								bone_parent_global_rest_3d = skeletons_2d_data[skel_name]["bones_data"][bone_parent]["global_rest_transform_3d"]
-
+					else:
+						continue
 					if track_data["type"] == Animation.TrackType.TYPE_POSITION_3D:
 						var pos_track_id = animation.add_track(Animation.TYPE_VALUE)
 						if track_node_path != null and not track_node_path.is_empty():
@@ -220,15 +227,32 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot_2d)
 							prev_angle = rot_2d
 					elif track_data["type"] == Animation.TrackType.TYPE_SCALE_3D:
-						var scale_track_id = animation.add_track(Animation.TYPE_VALUE)
-						if track_node_path != null and not track_node_path.is_empty():
-							animation.track_set_path(scale_track_id, NodePath(str(track_node_path) + ":scale"))
-						var base_scale = Vector2(1.0, 1.0)
 						
-						for i in range(track_data["keyframes"].size()):
-							var scale_value = track_data["keyframes"][i].x
-							animation.track_insert_key(scale_track_id, track_data["key_times"][i], base_scale * scale_value)
+						if track_node_path != null and not track_node_path.is_empty():
+							var scale_track_id = animation.add_track(Animation.TYPE_VALUE)
+							animation.track_set_path(scale_track_id, NodePath(str(track_node_path) + ":scale"))
+							var base_scale = Vector2(1.0, 1.0)
 							
+							for i in range(track_data["keyframes"].size()):
+								var scale_value = track_data["keyframes"][i].x
+								animation.track_insert_key(scale_track_id, track_data["key_times"][i], base_scale * scale_value)
+								if split_node_name[1] in visibility_anim_data.keys():
+									if not "keyframes" in visibility_anim_data[split_node_name[1]].keys():
+										visibility_anim_data[split_node_name[1]]["keyframes"] = []
+									if not "key_times" in visibility_anim_data[split_node_name[1]].keys():
+										visibility_anim_data[split_node_name[1]]["key_times"] = []
+									visibility_anim_data[split_node_name[1]]["keyframes"].append(scale_value > 0.9)
+									visibility_anim_data[split_node_name[1]]["key_times"].append(track_data["key_times"][i])
+				
+				if visibility_anim_data and visibility_anim_data.keys().size() > 0:
+					for vis_key in visibility_anim_data.keys():
+						
+						if visibility_anim_data[vis_key]["keyframes"].size() > 0:
+							var viz_track_id = animation.add_track(Animation.TYPE_VALUE)
+							animation.track_set_path(viz_track_id, NodePath(str(visibility_anim_data[vis_key]["node_path"]) + ":visible"))
+							for i in range(visibility_anim_data[vis_key]["keyframes"].size()):
+								animation.track_insert_key(viz_track_id, visibility_anim_data[vis_key]["key_times"][i], 
+									visibility_anim_data[vis_key]["keyframes"][i])
 				global_library.add_animation(anim_name, animation)
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
@@ -240,9 +264,6 @@ func quaternion_to_string(q : Quaternion):
 	
 
 func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D, parent_global_rest_3d : Transform3D) -> float:
-	#print(quaternion_to_string(key_rot_3d) + " | R" + quaternion_to_string(rest_transform_3d.basis.get_rotation_quaternion()) + " | P" + \
-		#quaternion_to_string(parent_global_rest_3d.basis.get_rotation_quaternion()))
-	
 	var key_vec = Vector3.UP
 	key_vec = key_rot_3d * key_vec
 	key_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * key_vec
@@ -252,7 +273,6 @@ func calc_rotation_key(key_rot_3d : Quaternion, rest_transform_3d : Transform3D,
 	rest_vec = parent_global_rest_3d.basis.get_rotation_quaternion() * rest_vec
 	
 	var _angle = Vector2(key_vec.x, key_vec.y).angle_to(Vector2(rest_vec.x, rest_vec.y))
-	#print(rad_to_deg(_angle))
 	return _angle
 
 
@@ -299,12 +319,10 @@ func _process_animation(node: Node, animation_data: Dictionary, parent_path: Str
 			var anim : Animation = anim_lib.get_animation(anim_name)
 			animation_data[anim_player_name][anim_name]["length"] = anim.length
 			animation_data[anim_player_name][anim_name]["tracks"] = []
-			#print("----" + anim_name + " tracks : " + str(anim.get_track_count()))
 			for i in range(anim.get_track_count()):
 				var current_track = {}
 				current_track["type"] = anim.track_get_type(i)
 				current_track["path"] = str(anim.track_get_path(i)).replace('.', '_')
-				#print(str(i) + " " + current_track["path"] + " : " + str(anim.track_get_type(i)))
 				var keyframes = []
 				var key_times = []
 				for k in range(anim.track_get_key_count(i)):
