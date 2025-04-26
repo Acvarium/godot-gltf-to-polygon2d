@@ -2,20 +2,17 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://m0iaxd1bqffy"
-path.s3tc="res://.godot/imported/take_photo_animal_faces_animal_faces.png-cce23c98ee3eadd597f38e8c7134c98c.s3tc.ctex"
+uid="uid://dtu7pmc1fqypt"
+path.s3tc="res://.godot/imported/animal_faces.png-963252c99f8a31e05632d4e7b5eb6458.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "3d80c76abddb76ec01d3a883e5a31a13"
-}
 
 [deps]
 
-source_file="res://models/animal/take_photo_animal_faces_animal_faces.png"
-dest_files=["res://.godot/imported/take_photo_animal_faces_animal_faces.png-cce23c98ee3eadd597f38e8c7134c98c.s3tc.ctex"]
+source_file="res://models/animal/animal_faces.png"
+dest_files=["res://.godot/imported/animal_faces.png-963252c99f8a31e05632d4e7b5eb6458.s3tc.ctex"]
 
 [params]
 

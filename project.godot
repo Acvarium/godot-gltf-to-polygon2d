@@ -23,6 +23,13 @@ enabled=PackedStringArray("res://addons/gltf_to_polygon2d/plugin.cfg")
 
 import/blender/enabled=false
 
+[importer_defaults]
+
+gltf_to_polygon2d.importer={
+"audio_tracks_location": "",
+"scale": 50.0
+}
+
 [rendering]
 
 renderer/rendering_method="mobile"

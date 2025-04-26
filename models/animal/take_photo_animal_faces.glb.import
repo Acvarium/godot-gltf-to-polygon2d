@@ -13,4 +13,4 @@ dest_files=["res://.godot/imported/take_photo_animal_faces.glb-4120d7a98b66f5d85
 [params]
 
 scale=50.0
-surfaces_as_nodes=false
+audio_tracks_location="res://audio/"

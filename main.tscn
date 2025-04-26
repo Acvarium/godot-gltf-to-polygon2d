@@ -3,8 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://ds46n1yoxyyaq" path="res://models/animal/take_photo_animal_faces.glb" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://cipujd4wko17m" path="res://models/char01_anim.glb" id="4_1bvp3"]
 
-[sub_resource type="Animation" id="Animation_0xm2m"]
-resource_name = "aa"
+[sub_resource type="Animation" id="Animation_h2yge"]
+length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -18,8 +18,8 @@ tracks/0/keys = {
 "values": [true]
 }
 
-[sub_resource type="Animation" id="Animation_h2yge"]
-length = 0.001
+[sub_resource type="Animation" id="Animation_0xm2m"]
+resource_name = "aa"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -87,61 +87,48 @@ editor_settings/show_bone_gizmo = false
 
 [node name="neck01" parent="take_photo_animal_faces/Armature/body" index="0"]
 position = Vector2(-14.4366, 0)
-rotation = -0.0396388
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="neck02" parent="take_photo_animal_faces/Armature/body/neck01" index="0"]
 position = Vector2(-3.96213, -7.42819)
-rotation = -0.0381929
 editor_settings/show_bone_gizmo = false
 
 [node name="neck03" parent="take_photo_animal_faces/Armature/body/neck01/neck02" index="0"]
 position = Vector2(-1.85705, -8.13412)
-rotation = -0.00470324
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="neck04" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03" index="0"]
 position = Vector2(-1.39914, -8.38851)
-rotation = -0.0618219
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="neck05" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04" index="0"]
 position = Vector2(-1.79345, -8.14684)
-rotation = -0.00503295
 editor_settings/show_bone_gizmo = false
 
 [node name="face_2" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05" index="0"]
 position = Vector2(-4.03208, -7.25647)
-rotation = 0.0290391
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="ear_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="0"]
 position = Vector2(-4.65131, -0.972631)
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="ear_l" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="1"]
 position = Vector2(4.16602, -0.731753)
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="eyeball_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="2"]
 position = Vector2(-4.52411, 4.28393)
-scale = Vector2(1.00001, 1.00001)
+scale = Vector2(1.00001, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="eyeball_l" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="3"]
 position = Vector2(1.65251, 4.646)
-scale = Vector2(0.999999, 0.999999)
+scale = Vector2(0.999999, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="pupils" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="4"]
 position = Vector2(-1.55568, 4.93055)
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="pupil_r" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2/pupils" index="0"]
@@ -154,12 +141,11 @@ editor_settings/show_bone_gizmo = false
 
 [node name="mouth_main" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2" index="5"]
 position = Vector2(-2.72936, 12.3702)
-scale = Vector2(1.00001, 1.00001)
+scale = Vector2(1.00001, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="mouth" parent="take_photo_animal_faces/Armature/body/neck01/neck02/neck03/neck04/neck05/face_2/mouth_main" index="0"]
 position = Vector2(-3.79593, -1.5331)
-scale = Vector2(1, 1)
 editor_settings/show_bone_gizmo = false
 
 [node name="visibility" parent="take_photo_animal_faces/Armature" index="2"]
@@ -168,19 +154,13 @@ editor_settings/show_bone_gizmo = false
 [node name="eyes_visible" parent="take_photo_animal_faces/Armature/visibility" index="0"]
 position = Vector2(4.50688, 0)
 scale = Vector2(1.5, 1.5)
-editor_settings/show_bone_gizmo = false
 
 [node name="eyes_pupils_visible" parent="take_photo_animal_faces/Armature/visibility" index="1"]
 scale = Vector2(1.5, 1.5)
-editor_settings/show_bone_gizmo = false
 
 [node name="eyes_closed_visible" parent="take_photo_animal_faces/Armature/visibility" index="2"]
 position = Vector2(9.3227, 0)
-scale = Vector2(1e-05, 1e-05)
-editor_settings/show_bone_gizmo = false
-
-[node name="eyes_closed" parent="take_photo_animal_faces" index="7"]
-visible = false
+scale = Vector2(1.5, 1.5)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

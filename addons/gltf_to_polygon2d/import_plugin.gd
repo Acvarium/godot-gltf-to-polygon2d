@@ -31,11 +31,15 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 			"name": "scale",
 			"default_value": 50.0,
 			"property_hint": PROPERTY_HINT_RANGE,
-			"hint_string": "1.0,500,0.1"
+			"hint_string": "1.0,10000,0.1"
 		},
+		#{
+			#"name": "surfaces_as_nodes",
+			#"default_value": false
+		#}
 		{
-			"name": "surfaces_as_nodes",
-			"default_value": false
+			"name": "audio_tracks_location",
+			"default_value": ""
 		}
 		]  
 
@@ -45,7 +49,14 @@ func _get_option_visibility(preset_name: String, option_name: StringName, option
 
 func _import(source_file: String, save_path: String, options: Dictionary, r_platform_variants: Array[String], r_gen_files: Array[String]) -> int:
 	var scale = options.get("scale", 1.0)
-	var surfaces_as_nodes :bool = options.get("surfaces_as_nodes", true)
+	#var surfaces_as_nodes :bool = options.get("surfaces_as_nodes", true)
+	#var remove_property_bones : bool = options.get("remove_property_bones", true)
+	var audio_tracks_location : String = options.get("audio_tracks_location", "")
+	if audio_tracks_location == "":
+		audio_tracks_location = source_file.get_base_dir()
+	if audio_tracks_location[-1] != "/":
+		audio_tracks_location += "/"
+	
 	var importer := GLTFDocument.new()
 
 	var state := GLTFState.new()
@@ -55,6 +66,25 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 	if err != OK:
 		push_error("Failed to import GLTF: " + source_file)
 		return err
+
+# Пройтись по всіх текстурах
+	for image in state.images:
+		if image == null:
+			continue
+
+		# image є ImageTexture або Image
+		var tex: Texture2D = image
+
+		# Створити окремий Image файл
+		var img: Image = tex.get_image()
+
+		if img:
+			# Сформувати шлях для збереження
+			var texture_save_path = save_path.get_base_dir() + "/" + tex.resource_name + ".png"
+			
+			# Зберегти як PNG
+			img.save_png(texture_save_path)
+
 
 	var scene_root: Node3D = importer.generate_scene(state, 30, false, false)
 	if not scene_root:
@@ -165,11 +195,16 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 			animation_player.add_animation_library("", global_library)
 #------------------------------------------------------------------------------
 #----------------------ANIMATIONS
+
+
 			for anim_name in animation_data[anim_player_name].keys():
+				
 				var visibility_anim_data = {}
 				var animation := Animation.new()
 				animation.loop_mode = Animation.LOOP_LINEAR
 				animation.length = animation_data[anim_player_name][anim_name]["length"]
+				
+				
 				for track_data : Dictionary in animation_data[anim_player_name][anim_name]["tracks"]:
 					var track_node_path : NodePath
 					var split_node_name = str(track_data["path"]).split(":")
@@ -227,21 +262,21 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							animation.track_insert_key(rot_track_id, track_data["key_times"][i], rot_2d)
 							prev_angle = rot_2d
 					elif track_data["type"] == Animation.TrackType.TYPE_SCALE_3D:
-						
 						if track_node_path != null and not track_node_path.is_empty():
 							var scale_track_id = animation.add_track(Animation.TYPE_VALUE)
 							animation.track_set_path(scale_track_id, NodePath(str(track_node_path) + ":scale"))
 							var base_scale = Vector2(1.0, 1.0)
 							
 							for i in range(track_data["keyframes"].size()):
-								var scale_value = track_data["keyframes"][i].x
-								animation.track_insert_key(scale_track_id, track_data["key_times"][i], base_scale * scale_value)
+								var scale_vec = Vector2(track_data["keyframes"][i].x, track_data["keyframes"][i].y)
+								animation.track_insert_key(scale_track_id, track_data["key_times"][i], scale_vec)
+
 								if split_node_name[1] in visibility_anim_data.keys():
 									if not "keyframes" in visibility_anim_data[split_node_name[1]].keys():
 										visibility_anim_data[split_node_name[1]]["keyframes"] = []
 									if not "key_times" in visibility_anim_data[split_node_name[1]].keys():
 										visibility_anim_data[split_node_name[1]]["key_times"] = []
-									visibility_anim_data[split_node_name[1]]["keyframes"].append(scale_value > 0.9)
+									visibility_anim_data[split_node_name[1]]["keyframes"].append(track_data["keyframes"][i].x > 0.9)
 									visibility_anim_data[split_node_name[1]]["key_times"].append(track_data["key_times"][i])
 				
 				if visibility_anim_data and visibility_anim_data.keys().size() > 0:
@@ -253,7 +288,35 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 							for i in range(visibility_anim_data[vis_key]["keyframes"].size()):
 								animation.track_insert_key(viz_track_id, visibility_anim_data[vis_key]["key_times"][i], 
 									visibility_anim_data[vis_key]["keyframes"][i])
+									
+#---Audio track from animation extras
+				var audio_track_name = ""
+				var animations_json = state.json.get("animations", [])
+				for i in animations_json.size():
+					if "name" in animations_json[i].keys() and animations_json[i]["name"] == anim_name:
+						var extras = animations_json[i].get("extras", {})
+						if "audio" in extras.keys():
+							print("audio : " + str(extras["audio"]))
+							var audio_path = audio_tracks_location + extras["audio"]
+							if FileAccess.file_exists(audio_path):
+								var audio_track_id = animation.add_track(Animation.TYPE_AUDIO)
+								var audio_player := AudioStreamPlayer.new()
+								
+								audio_player.name = anim_name + "_audio"
+								node2d.add_child(audio_player)
+								audio_player.owner = node2d
+								
+								animation.track_set_path(audio_track_id, node2d.get_path_to(audio_player))
+								animation.audio_track_insert_key(audio_track_id, 0.0, load(audio_path))
+							else:
+								push_warning("The audio file does not exist")
+	#----------------------------------
+				
+				
 				global_library.add_animation(anim_name, animation)
+				
+	
+	
 	packed_scene.pack(node2d)
 	return ResourceSaver.save(packed_scene, save_path + ".scn")
 
