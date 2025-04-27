@@ -1,0 +1,16 @@
+[remap]
+
+importer="gltf_to_polygon2d.importer"
+type="PackedScene"
+uid="uid://dw5ycwdnd0dhk"
+path="res://.godot/imported/elefant.glb-e7392a3ee9a7b39412071b5c2ba9fa42.scn"
+
+[deps]
+
+source_file="res://models/animal/elefant.glb"
+dest_files=["res://.godot/imported/elefant.glb-e7392a3ee9a7b39412071b5c2ba9fa42.scn"]
+
+[params]
+
+scale=50.0
+audio_tracks_location=""

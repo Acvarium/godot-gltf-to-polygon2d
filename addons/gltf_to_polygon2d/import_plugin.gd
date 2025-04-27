@@ -152,7 +152,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 	sorted_keys.sort_custom(func(a, b):
 		return meshes[a]["z_pos"] < meshes[b]["z_pos"]
 	)
-
+	print(sorted_keys)
 	for key in sorted_keys:
 		var polygon2d := Polygon2D.new()
 		polygon2d.name = key
@@ -472,7 +472,7 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 					var verts = []
 					if array.size() > Mesh.ARRAY_VERTEX:
 						verts = array[Mesh.ARRAY_VERTEX]
-						z_pos = verts[0].z
+						z_pos = verts[0].z + world_offset.z
 						for v in verts:
 							vert_array.append(Vector2(v.x + world_offset.x, -v.y - world_offset.y) * scale)
 					if array.size() > Mesh.ARRAY_TEX_UV:
@@ -503,6 +503,7 @@ func _process_node(node: Node, meshes: Dictionary, scale: float = 1.0, parent_pa
 				meshes[mesh_name]["polygons_array"] = index_array
 				meshes[mesh_name]["weights_dict"] = weights_dict  # Тепер словник {bone_idx: PackedFloat32Array}
 				meshes[mesh_name]["z_pos"] = z_pos
+				print(mesh_name + " " + str(z_pos))
 				if texture_path != "":
 					meshes[mesh_name]["texture_path"] = texture_path
 				if node.get_parent() and node.get_parent() is Skeleton3D and node.get_parent().get_parent():
