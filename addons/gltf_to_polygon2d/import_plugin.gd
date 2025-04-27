@@ -25,6 +25,9 @@ func _get_preset_count() -> int:
 func _get_preset_name(preset_index: int) -> String:
 	return "Default"
 
+func _get_priority() -> float:
+	return 1.0  
+
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 	return [        
 		{
