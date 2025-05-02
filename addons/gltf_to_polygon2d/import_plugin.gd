@@ -200,11 +200,12 @@ func _import(source_file: String, save_path: String, options: Dictionary, r_plat
 #----------------------ANIMATIONS
 
 
-			for anim_name in animation_data[anim_player_name].keys():
+			for anim_name : String in animation_data[anim_player_name].keys():
 				
 				var visibility_anim_data = {}
 				var animation := Animation.new()
-				animation.loop_mode = Animation.LOOP_LINEAR
+				if anim_name.contains("_loop"):
+					animation.loop_mode = Animation.LOOP_LINEAR
 				animation.length = animation_data[anim_player_name][anim_name]["length"]
 				
 				
